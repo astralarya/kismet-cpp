@@ -37,8 +37,3 @@ inline void KismetParser::print()
     // symbols from the namespace KISMET without specifying KISMET::
 //using namespace KISMET;
 
-    // UN-comment the next using-declaration if you want to use
-    // int KismetParser's sources symbols from the namespace std without
-    // specifying std::
-
-//using namespace std;
