@@ -16,7 +16,7 @@ Mara Kim
 %token NEWLINE
 %token <string> DIE
 %token <integer> CONSTANT
-%type <integer> d_size
+%type <integer> count d_size
 
 %%
 /* rules */
@@ -38,15 +38,24 @@ roll:
 ;
 dice:
     count d_size
+    { std::cout << "Saw a dice: " << $1 << 'd' << $2 << std::endl;
+      std::cout << "Rolled: " << Dice::roll($2,$1) << std::endl; }
 ;
 count:
     /* empty */
+    { $$ = 1; }
   | CONSTANT
+    { std::stringstream ss;
+      ss << d_scanner.matched();
+      ss >> $$;
+      std::cout << "Saw a constant " << $$ << std::endl; }
 ;
 d_size:
-    DIE
-  { std::stringstream ss;
-    ss << d_scanner.matched().substr(1); 
-    ss >> $$;
-    std::cout << "Saw a d" << $$ << std::endl; }
+    /* empty */
+    { $$ = Options::Instance()->get(DEFAULT_DIE); }
+  | DIE
+    { std::stringstream ss;
+      ss << d_scanner.matched().substr(1); 
+      ss >> $$;
+      std::cout << "Saw a d" << $$ << std::endl; }
 ;

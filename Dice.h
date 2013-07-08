@@ -13,6 +13,6 @@
 class Dice {
 public:
     static int roll(int size, int times);
-}
+};
 
 #endif // DICE_H
