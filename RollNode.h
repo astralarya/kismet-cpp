@@ -25,6 +25,7 @@ public:
 class DiceRollNode: public RollNode {
 public:
     typedef std::unique_ptr<DiceRollNode> ptr;
+    DiceRollNode();
     DiceRollNode(Dice::roll_type& dice);
     dice_roll roll();
     bool multi();
@@ -52,6 +53,17 @@ public:
 protected:
     RollNode::ptr _first, _second;
     mode _operator;
+};
+
+class UnaryRollNode: public RollNode {
+public:
+    typedef std::unique_ptr<UnaryRollNode> ptr;
+    typedef MathRollNode::mode mode;
+    UnaryRollNode(int i, mode op);
+    dice_roll roll();
+    bool multi();
+protected:
+    MathRollNode::ptr _math_node;
 };
 
 #endif // ROLLNODE_H

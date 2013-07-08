@@ -14,6 +14,13 @@ _dice(dice) {
     // ctor
 }
 
+DiceRollNode::DiceRollNode():
+_dice() {
+    Dice::roll_type roll;
+    roll.times = 1;
+    roll.die = Options::Instance()->get(DEFAULT_DIE);
+}
+
 RollNode::dice_roll DiceRollNode::roll() {
     RollNode::dice_roll r;
     auto roll = Dice::roll_str(_dice);
@@ -134,4 +141,23 @@ bool MathRollNode::multi() {
     case DIV:
         return false;
     }
+}
+
+UnaryRollNode::UnaryRollNode(int i, mode op):
+_math_node()
+{
+/*
+    RollNode::ptr s(new MathRollNode(RollNode::ptr p(new DiceRollNode()),
+                     RollNode::ptr p(new IntRollNode(i)),
+                     op));
+*/
+    // ctor
+}
+
+RollNode::dice_roll UnaryRollNode::roll() {
+    return _math_node->roll();
+}
+
+bool UnaryRollNode::multi() {
+    return false;
 }

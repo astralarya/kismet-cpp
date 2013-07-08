@@ -18,6 +18,7 @@ Mara Kim
 %left NEWLINE
 %left ADD SUB
 %left MULT DIV
+%left UNARY
 %token <string> DIE LABEL
 %token <integer> COUNT CONSTANT
 %type <integer> count constant die
@@ -54,6 +55,18 @@ expr:
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::ADD)); }
   | expr SUB expr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB)); }
+  | ADD constant %prec UNARY
+    { $$ = UnaryRollNode::ptr(new UnaryRollNode($2,MathRollNode::ADD)); }
+/*
+  | SUB constant %prec UNARY
+    { Dice::roll_type roll;
+      roll.times = 1;
+      roll.die = Options::Instance()->get(DEFAULT_DIE);
+      $$ = MathRollNode::ptr(new MathRollNode(
+               RollNode::ptr(new DiceRollNode(roll)),
+               RollNode::ptr(new IntRollNode($2)),
+               MathRollNode::SUB)); }
+*/
 ;
 factor:
     leaf
