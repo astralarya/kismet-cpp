@@ -12,11 +12,13 @@ Mara Kim
 
 %polymorphic string: string_type;
              integer: int;
+             roll_type: Dice::roll_type;
 
 %token NEWLINE
 %token <string> DIE
 %token <integer> CONSTANT
-%type <integer> count d_size
+%type <integer> constant count die expr
+%type <roll_type> roll
 
 %%
 /* rules */
@@ -32,28 +34,33 @@ line:
 ;
 expr:
     roll
+    { std::cout << "Saw roll: " << ($1).times << 'd' << ($1).die << std::endl;
+      Dice::result_type result = Dice::roll_str($1);
+      $$ = result.first;
+      std::cout << "Rolled: " << result.second << std::endl; }
+  | constant
 ;
 roll:
-    dice
-;
-dice:
-    count d_size
-    { std::cout << "Saw a dice: " << $1 << 'd' << $2 << std::endl;
-      std::cout << "Rolled: " << Dice::roll($2,$1) << std::endl; }
+    count die
+    { ($$).times = ($1);
+      ($$).die = ($2); }
+  | die
+    { ($$).times = 1;
+      ($$).die = ($1); }
 ;
 count:
-    /* empty */
-    { $$ = 1; }
-  | CONSTANT
+    constant
+    { $$ = $1; }
+;
+constant:
+    CONSTANT
     { std::stringstream ss;
       ss << d_scanner.matched();
       ss >> $$;
       std::cout << "Saw a constant " << $$ << std::endl; }
 ;
-d_size:
-    /* empty */
-    { $$ = Options::Instance()->get(DEFAULT_DIE); }
-  | DIE
+die:
+    DIE
     { std::stringstream ss;
       ss << d_scanner.matched().substr(1); 
       ss >> $$;
