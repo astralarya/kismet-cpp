@@ -10,7 +10,7 @@
 #include "Mode.h"
 
 // Typed modes
-enum bool_mode{VERBOSE};
+enum bool_mode{INTERACTIVE};
 template <>
 struct Type<bool_mode> {
     typedef bool T;
@@ -30,14 +30,14 @@ struct Type<int_mode> {
 
 // Mode Signitures
 template <>
-typename TypeInfo<bool_mode>::key_type TypeInfo<bool_mode>::keys ({{VERBOSE, "VERBOSE"}});
+typename TypeInfo<bool_mode>::key_type TypeInfo<bool_mode>::keys {{INTERACTIVE, "INTERACTIVE"}};
 template <>
-typename TypeInfo<bool_mode>::defaults_type TypeInfo<bool_mode>::defaults {};
+typename TypeInfo<bool_mode>::defaults_type TypeInfo<bool_mode>::defaults {{INTERACTIVE,{true}}};
 template <>
 typename TypeInfo<bool_mode>::init_type TypeInfo<bool_mode>::init = false;
 
 template <>
-typename TypeInfo<int_mode>::key_type TypeInfo<int_mode>::keys ({{DEFAULT_DIE, "DEFAULT_DIE"}});
+typename TypeInfo<int_mode>::key_type TypeInfo<int_mode>::keys {{DEFAULT_DIE, "DEFAULT_DIE"}};
 template <>
 typename TypeInfo<int_mode>::defaults_type TypeInfo<int_mode>::defaults {{DEFAULT_DIE,{20}}};
 template <>
