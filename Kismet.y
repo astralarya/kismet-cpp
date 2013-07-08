@@ -22,7 +22,7 @@ Mara Kim
 %token <integer> COUNT CONSTANT
 %type <integer> count constant die
 %type <die_type> roll
-%type <roll_type> expr headexpr leafexpr
+%type <roll_type> expr leaf factor
 %type <string> label
 
 %%
@@ -48,30 +48,22 @@ label:
     { $$ = d_scanner.matched().substr(0,d_scanner.matched().size()-1); }
 ;
 expr:
-    headexpr
+    factor
     { $$ = std::move($1); }
-  | expr ADD headexpr
+  | expr ADD expr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::ADD)); }
-  | expr SUB headexpr
+  | expr SUB expr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB)); }
-  | expr MULT headexpr
+;
+factor:
+    leaf
+    { $$ = std::move($1); }
+  | factor MULT factor
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::MULT)); }
-  | expr DIV headexpr
+  | factor DIV factor
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::DIV)); }
 ;
-headexpr:
-    leafexpr
-    { $$ = std::move($1); }
-  | leafexpr ADD leafexpr
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::ADD,true)); }
-  | leafexpr SUB leafexpr
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB,true)); }
-  | leafexpr MULT leafexpr
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::MULT,true)); }
-  | leafexpr DIV leafexpr
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::DIV,true)); }
-;
-leafexpr:
+leaf:
     roll
     { $$ = DiceRollNode::ptr(new DiceRollNode($1)); }
   | constant

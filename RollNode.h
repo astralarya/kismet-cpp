@@ -18,6 +18,7 @@ public:
     };
     typedef std::unique_ptr<RollNode> ptr;
     virtual dice_roll roll() = 0;
+    virtual bool multi() = 0;
     virtual ~RollNode();
 };
 
@@ -26,6 +27,7 @@ public:
     typedef std::unique_ptr<DiceRollNode> ptr;
     DiceRollNode(Dice::roll_type& dice);
     dice_roll roll();
+    bool multi();
 protected:
     Dice::roll_type _dice;
 };
@@ -35,6 +37,7 @@ public:
     typedef std::unique_ptr<IntRollNode> ptr;
     IntRollNode(int i);
     dice_roll roll();
+    bool multi();
 protected:
     int _integer;
 };
@@ -43,12 +46,12 @@ class MathRollNode: public RollNode {
 public:
     typedef std::unique_ptr<MathRollNode> ptr;
     enum mode {ADD,SUB,MULT,DIV};
-    MathRollNode(RollNode::ptr& first, RollNode::ptr& second, mode op, bool head = false);
+    MathRollNode(RollNode::ptr& first, RollNode::ptr& second, mode op);
     dice_roll roll();
+    bool multi();
 protected:
     RollNode::ptr _first, _second;
     mode _operator;
-    bool _head;
 };
 
 #endif // ROLLNODE_H

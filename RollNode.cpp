@@ -25,6 +25,10 @@ RollNode::dice_roll DiceRollNode::roll() {
     return r;
 }
 
+bool DiceRollNode::multi() {
+    return _dice.times > 1;
+}
+
 IntRollNode::IntRollNode(int i):
 _integer(i) {
     // ctor
@@ -40,11 +44,14 @@ RollNode::dice_roll IntRollNode::roll() {
     return r;
 }
 
-MathRollNode::MathRollNode(RollNode::ptr& first, RollNode::ptr& second, MathRollNode::mode op, bool head):
+bool IntRollNode::multi() {
+    return false;
+}
+
+MathRollNode::MathRollNode(RollNode::ptr& first, RollNode::ptr& second, mode op):
 _first(std::move(first)),
 _second(std::move(second)),
-_operator(op),
-_head(head) {
+_operator(op) {
     // ctor
 }
 
@@ -74,10 +81,10 @@ RollNode::dice_roll MathRollNode::roll() {
     r.roll = ss.str();
     // construct report
     ss.str("");
-    if(_head)
+    if(_first->multi())
         ss << '(';
     ss << first.report;
-    if(_head)
+    if(_first->multi())
         ss << ')';
     switch(_operator) {
     case ADD:
@@ -93,7 +100,11 @@ RollNode::dice_roll MathRollNode::roll() {
         ss << " / ";
         break;
     }
-    ss << '(' << second.report << ')';
+    if(_second->multi())
+        ss << '(';
+    ss << second.report;
+    if(_second->multi())
+        ss << ')';
     r.report = ss.str();
     // set result
     switch(_operator) {
@@ -111,4 +122,15 @@ RollNode::dice_roll MathRollNode::roll() {
         break;
     }
     return r;
+}
+
+bool MathRollNode::multi() {
+    switch(_operator) {
+    case ADD:
+    case SUB:
+        return true;
+    case MULT:
+    case DIV:
+        return false;
+    }
 }
