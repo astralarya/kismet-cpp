@@ -27,6 +27,7 @@ MULTILINECOMMENT_E      "*/"
 }
 
 d[[:digit:]]+           return KismetParser::DIE;
+[[:digit:]]+            return KismetParser::CONSTANT;
 
 \n                      return KismetParser::NEWLINE;
 [[:space:]]             /* empty */

@@ -11,11 +11,12 @@ Mara Kim
 %baseclass-preinclude "Kismet.types.h"
 
 %polymorphic string: string_type;
+             integer: int;
 
 %token NEWLINE
 %token <string> DIE
-%token <int> CONSTANT
-%type <int> d_size
+%token <integer> CONSTANT
+%type <integer> d_size
 
 %%
 /* rules */
@@ -39,8 +40,13 @@ dice:
     count d_size
 ;
 count:
-    CONSTANT
+    /* empty */
+  | CONSTANT
 ;
 d_size:
     DIE
+  { std::stringstream ss;
+    ss << d_scanner.matched().substr(1); 
+    ss >> $$;
+    std::cout << "Saw a d" << $$ << std::endl; }
 ;
