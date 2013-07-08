@@ -35,9 +35,10 @@ Dice::result_type Dice::roll_str(const unsigned int& die, const unsigned int& ti
         result += roll;
         report << roll;
     }
-    if(times > 1)
-        report << " = " << result;
-    return result_type(result,report.str());
+    Dice::result_type r;
+    r.result = result;
+    r.report = report.str();
+    return r;
 }
 
 Dice::result_type Dice::roll_str(const Dice::roll_type& roll) {

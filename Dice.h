@@ -15,10 +15,18 @@
 
 class Dice {
 public:
-    typedef std::pair<int,std::string> result_type;
+    struct result_type {
+        std::string report;
+        int result;
+    };
     struct roll_type {
         unsigned int die;
         unsigned int times;
+    };
+    struct dice_roll {
+        std::string roll;
+        std::string report;
+        int result;
     };
 
     static int roll(const unsigned int& die, const unsigned int& times);
@@ -27,6 +35,4 @@ public:
     static result_type roll_str(const roll_type& roll);
 };
 
-class Roll {
-};
 #endif // DICE_H

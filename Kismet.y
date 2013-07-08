@@ -13,12 +13,14 @@ Mara Kim
 %polymorphic string: std::string;
              integer: int;
              roll_type: Dice::roll_type;
+             result_type: Dice::dice_roll;
 
 %token NEWLINE
 %token <string> DIE LABEL
 %token <integer> CONSTANT
-%type <integer> constant die expr
+%type <integer> constant die
 %type <roll_type> roll
+%type <result_type> expr
 %type <string> label
 
 %%
@@ -30,13 +32,14 @@ input:
 ;
 line:
     NEWLINE
-  | directive
+  | directive NEWLINE
   | error NEWLINE
 ;
 directive:
-    label NEWLINE
-  | expr NEWLINE
-  | label expr NEWLINE
+    label
+  | expr
+    { std::cout << "Roll(" << ($1).roll  << "): " << ($1).report << " = " << ($1).result << std::endl; }
+  | label expr
 ;
 label:
     LABEL
@@ -46,10 +49,17 @@ label:
 expr:
     roll
     { Dice::result_type result = Dice::roll_str($1);
-      $$ = result.first;
-      std::cout << "Roll(" << ($1).times << 'd' << ($1).die << "): " << result.second << std::endl; }
+      std::stringstream ss;
+      ss << ($1).times << 'd' << ($1).die;
+      ($$).roll = ss.str();
+      ($$).report = result.report;
+      ($$).result = result.result; }
   | constant
-    { $$ = $1;
+    { std::stringstream ss;
+      ss << $1;
+      ($$).roll = ss.str();
+      ($$).report = ss.str();
+      ($$).result = $1;
       std::cout << "Constant: " << $1 << std::endl; }
 ;
 roll:
