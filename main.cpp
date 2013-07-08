@@ -80,6 +80,10 @@ int main(int argc, const char* argv[])
         return 0;
     }
 
+    // Greet interactive
+    std::cout << "Greetings, human!\n"
+                 "I am Kismet. Input a roll and press ENTER.\n"
+                 "CTRL-D to exit." << std::endl;
 
     // run program
     KismetParser kismet;
