@@ -10,15 +10,16 @@ Mara Kim
 %scanner KismetScanner.h
 %baseclass-preinclude "Kismet.types.h"
 
-%polymorphic string: string_type;
+%polymorphic string: std::string;
              integer: int;
              roll_type: Dice::roll_type;
 
 %token NEWLINE
-%token <string> DIE
+%token <string> DIE LABEL
 %token <integer> CONSTANT
-%type <integer> constant count die expr
+%type <integer> constant die expr
 %type <roll_type> roll
+%type <string> label
 
 %%
 /* rules */
@@ -29,8 +30,18 @@ input:
 ;
 line:
     NEWLINE
-  | expr NEWLINE
+  | directive
   | error NEWLINE
+;
+directive:
+    label NEWLINE
+  | expr NEWLINE
+  | label expr NEWLINE
+;
+label:
+    LABEL
+    { $$ = d_scanner.matched().substr(0,d_scanner.matched().size()-1); 
+      std::cout << "Saw a label: " << $$ << std::endl; }
 ;
 expr:
     roll
@@ -38,18 +49,16 @@ expr:
       $$ = result.first;
       std::cout << "Roll(" << ($1).times << 'd' << ($1).die << "): " << result.second << std::endl; }
   | constant
+    { $$ = $1;
+      std::cout << "Constant: " << $1 << std::endl; }
 ;
 roll:
-    count die
-    { ($$).times = ($1);
-      ($$).die = ($2); }
+    constant die
+    { ($$).times = $1;
+      ($$).die = $2; }
   | die
     { ($$).times = 1;
-      ($$).die = ($1); }
-;
-count:
-    constant
-    { $$ = $1; }
+      ($$).die = $1; }
 ;
 constant:
     CONSTANT
