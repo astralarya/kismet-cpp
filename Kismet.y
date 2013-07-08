@@ -34,10 +34,9 @@ line:
 ;
 expr:
     roll
-    { std::cout << "Saw roll: " << ($1).times << 'd' << ($1).die << std::endl;
-      Dice::result_type result = Dice::roll_str($1);
+    { Dice::result_type result = Dice::roll_str($1);
       $$ = result.first;
-      std::cout << "Rolled: " << result.second << std::endl; }
+      std::cout << "Roll(" << ($1).times << 'd' << ($1).die << "): " << result.second << std::endl; }
   | constant
 ;
 roll:
@@ -56,13 +55,11 @@ constant:
     CONSTANT
     { std::stringstream ss;
       ss << d_scanner.matched();
-      ss >> $$;
-      std::cout << "Saw a constant " << $$ << std::endl; }
+      ss >> $$; }
 ;
 die:
     DIE
     { std::stringstream ss;
       ss << d_scanner.matched().substr(1); 
-      ss >> $$;
-      std::cout << "Saw a d" << $$ << std::endl; }
+      ss >> $$; }
 ;
