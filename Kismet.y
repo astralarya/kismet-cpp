@@ -15,10 +15,10 @@ Mara Kim
              roll_type: Dice::roll_type;
              result_type: Dice::dice_roll;
 
-%token NEWLINE
+%token NEWLINE PLUS MINUS
 %token <string> DIE LABEL
-%token <integer> CONSTANT
-%type <integer> constant die
+%token <integer> COUNT CONSTANT
+%type <integer> count constant die
 %type <roll_type> roll
 %type <result_type> expr
 %type <string> label
@@ -28,23 +28,20 @@ Mara Kim
 
 input:
     /* empty */
-  | input line
-;
-line:
-    NEWLINE
-  | directive NEWLINE
-  | error NEWLINE
+  | input directive
 ;
 directive:
-    label
-  | expr
+    expr NEWLINE
     { std::cout << "Roll(" << ($1).roll  << "): " << ($1).report << " = " << ($1).result << std::endl; }
-  | label expr
+  | label expr NEWLINE
+    { std::cout << $1 << '(' << ($2).roll  << "): " << ($2).report << " = " << ($2).result << std::endl; }
+  | label NEWLINE
+  | NEWLINE
+  | error NEWLINE
 ;
 label:
     LABEL
-    { $$ = d_scanner.matched().substr(0,d_scanner.matched().size()-1); 
-      std::cout << "Saw a label: " << $$ << std::endl; }
+    { $$ = d_scanner.matched().substr(0,d_scanner.matched().size()-1); }
 ;
 expr:
     roll
@@ -61,14 +58,36 @@ expr:
       ($$).report = ss.str();
       ($$).result = $1;
       std::cout << "Constant: " << $1 << std::endl; }
+  | expr PLUS expr
+    { std::stringstream ss;
+      ss << ($1).roll << '+' << ($3).roll;
+      ($$).roll = ss.str();
+      ss.str("");
+      ss << ($1).report << " + " << ($3).report;
+      ($$).report = ss.str();
+      ($$).result = ($1).result + ($3).result; }
+  | expr MINUS expr
+    { std::stringstream ss;
+      ss << ($1).roll << '-' << ($3).roll;
+      ($$).roll = ss.str();
+      ss.str("");
+      ss << ($1).report << " - " << ($3).report;
+      ($$).report = ss.str();
+      ($$).result = ($1).result - ($3).result; }
 ;
 roll:
-    constant die
+    count die
     { ($$).times = $1;
       ($$).die = $2; }
   | die
     { ($$).times = 1;
       ($$).die = $1; }
+;
+count:
+    COUNT
+    { std::stringstream ss;
+      ss << d_scanner.matched();
+      ss >> $$; }
 ;
 constant:
     CONSTANT

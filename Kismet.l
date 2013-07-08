@@ -27,9 +27,12 @@ MULTILINECOMMENT_E      "*/"
 }
 
 d[[:digit:]]+           return KismetParser::DIE;
+[[:digit:]]+/d          return KismetParser::COUNT;
 [[:digit:]]+            return KismetParser::CONSTANT;
 [[:alpha:]][[:alpha:][:space:]]+:          return KismetParser::LABEL;
 
+"+"                     return KismetParser::PLUS;
+"-"                     return KismetParser::MINUS;
 \n                      return KismetParser::NEWLINE;
 [[:space:]]             /* empty */
 .                       /* empty */
