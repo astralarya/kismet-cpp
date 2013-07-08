@@ -16,6 +16,7 @@
 
 #include "Initializer.h"
 #include "Options.h"
+#include "KismetParser.h"
 #include <iostream>
 
 
@@ -81,6 +82,8 @@ int main(int argc, const char* argv[])
 
 
     // run program
+    KismetParser kismet;
+    kismet.parse();
 
     return 0;
 }
