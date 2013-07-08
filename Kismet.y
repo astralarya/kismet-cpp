@@ -50,13 +50,13 @@ label:
 expr:
     headexpr
     { $$ = std::move($1); }
-  | expr ADD expr
+  | expr ADD headexpr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::ADD)); }
-  | expr SUB expr
+  | expr SUB headexpr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB)); }
-  | expr MULT expr
+  | expr MULT headexpr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::MULT)); }
-  | expr DIV expr
+  | expr DIV headexpr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::DIV)); }
 ;
 headexpr:
