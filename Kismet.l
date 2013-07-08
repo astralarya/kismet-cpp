@@ -7,13 +7,14 @@ Mara Kim
 %namespace = KISMET
 %class-name = KismetScanner
 %lex-source = "KismetScanner.cc"
+%interactive
 
 
 LINECOMMENT_S           "//"
 MULTILINECOMMENT_S      "/*"
 MULTILINECOMMENT_E      "*/"
 
-%x ASSIGN MULTILINECOMMENT STRING INCLUDE
+%x MULTILINECOMMENT
 
 /* rules */
 %%

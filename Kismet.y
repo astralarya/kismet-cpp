@@ -15,7 +15,8 @@ Mara Kim
              roll_type: Dice::roll_type;
              result_type: Dice::dice_roll;
 
-%token NEWLINE PLUS MINUS
+%left PLUS MINUS
+%left NEWLINE
 %token <string> DIE LABEL
 %token <integer> COUNT CONSTANT
 %type <integer> count constant die
@@ -28,16 +29,16 @@ Mara Kim
 
 input:
     /* empty */
-  | input directive
+  | input line
 ;
-directive:
-    expr NEWLINE
+line:
+    NEWLINE
+  | expr
     { std::cout << "Roll(" << ($1).roll  << "): " << ($1).report << " = " << ($1).result << std::endl; }
-  | label expr NEWLINE
+  | label expr
     { std::cout << $1 << '(' << ($2).roll  << "): " << ($2).report << " = " << ($2).result << std::endl; }
-  | label NEWLINE
-  | NEWLINE
   | error NEWLINE
+    { std::cout << "error" << std::endl; }
 ;
 label:
     LABEL
