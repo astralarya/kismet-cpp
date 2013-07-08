@@ -15,9 +15,9 @@ Mara Kim
              die_type: Dice::roll_type;
              roll_type: RollNode::ptr;
 
+%left NEWLINE
 %left ADD SUB
 %left MULT DIV
-%left NEWLINE
 %token <string> DIE LABEL
 %token <integer> COUNT CONSTANT
 %type <integer> count constant die
@@ -50,13 +50,13 @@ label:
 expr:
     headexpr
     { $$ = std::move($1); }
-  | headexpr ADD expr
+  | expr ADD expr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::ADD)); }
-  | headexpr SUB expr
+  | expr SUB expr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB)); }
-  | headexpr MULT expr
+  | expr MULT expr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::MULT)); }
-  | headexpr DIV expr
+  | expr DIV expr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::DIV)); }
 ;
 headexpr:
