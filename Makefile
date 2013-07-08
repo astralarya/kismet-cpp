@@ -6,7 +6,7 @@
 # project specific
 
 EXECUTABLE=kismet
-VERSION=0.1
+VERSION=0.2
 CFLAGS=-std=c++0x -g
 LDFLAGS=
 DOXFILE=
