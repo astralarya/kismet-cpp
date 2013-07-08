@@ -12,16 +12,17 @@ Mara Kim
 
 %polymorphic string: std::string;
              integer: int;
-             roll_type: Dice::roll_type;
-             result_type: Dice::dice_roll;
+             die_type: Dice::roll_type;
+             roll_type: RollNode::ptr;
 
-%left PLUS MINUS
+%left ADD SUB
+%left MULT DIV
 %left NEWLINE
 %token <string> DIE LABEL
 %token <integer> COUNT CONSTANT
 %type <integer> count constant die
-%type <roll_type> roll
-%type <result_type> expr
+%type <die_type> roll
+%type <roll_type> expr headexpr leafexpr
 %type <string> label
 
 %%
@@ -34,9 +35,11 @@ input:
 line:
     NEWLINE
   | expr
-    { std::cout << "Roll(" << ($1).roll  << "): " << ($1).report << " = " << ($1).result << std::endl; }
+    { auto roll = ($1)->roll();
+      std::cout << "Roll(" << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl; }
   | label expr
-    { std::cout << $1 << '(' << ($2).roll  << "): " << ($2).report << " = " << ($2).result << std::endl; }
+    { auto roll = ($2)->roll();
+      std::cout << $1 << '(' << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl; }
   | error NEWLINE
     { std::cout << "error" << std::endl; }
 ;
@@ -45,36 +48,34 @@ label:
     { $$ = d_scanner.matched().substr(0,d_scanner.matched().size()-1); }
 ;
 expr:
+    headexpr
+    { $$ = std::move($1); }
+  | headexpr ADD expr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::ADD)); }
+  | headexpr SUB expr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB)); }
+  | headexpr MULT expr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::MULT)); }
+  | headexpr DIV expr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::DIV)); }
+;
+headexpr:
+    leafexpr
+    { $$ = std::move($1); }
+  | leafexpr ADD leafexpr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::ADD,true)); }
+  | leafexpr SUB leafexpr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB,true)); }
+  | leafexpr MULT leafexpr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::MULT,true)); }
+  | leafexpr DIV leafexpr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::DIV,true)); }
+;
+leafexpr:
     roll
-    { Dice::result_type result = Dice::roll_str($1);
-      std::stringstream ss;
-      ss << ($1).times << 'd' << ($1).die;
-      ($$).roll = ss.str();
-      ($$).report = result.report;
-      ($$).result = result.result; }
+    { $$ = DiceRollNode::ptr(new DiceRollNode($1)); }
   | constant
-    { std::stringstream ss;
-      ss << $1;
-      ($$).roll = ss.str();
-      ($$).report = ss.str();
-      ($$).result = $1;
-      std::cout << "Constant: " << $1 << std::endl; }
-  | expr PLUS expr
-    { std::stringstream ss;
-      ss << ($1).roll << '+' << ($3).roll;
-      ($$).roll = ss.str();
-      ss.str("");
-      ss << ($1).report << " + " << ($3).report;
-      ($$).report = ss.str();
-      ($$).result = ($1).result + ($3).result; }
-  | expr MINUS expr
-    { std::stringstream ss;
-      ss << ($1).roll << '-' << ($3).roll;
-      ($$).roll = ss.str();
-      ss.str("");
-      ss << ($1).report << " - " << ($3).report;
-      ($$).report = ss.str();
-      ($$).result = ($1).result - ($3).result; }
+    { $$ = IntRollNode::ptr(new IntRollNode($1)); }
 ;
 roll:
     count die

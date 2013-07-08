@@ -32,8 +32,10 @@ d[[:digit:]]+           return KismetParser::DIE;
 [[:digit:]]+            return KismetParser::CONSTANT;
 [[:alpha:]][[:alpha:][:space:]]+:          return KismetParser::LABEL;
 
-"+"                     return KismetParser::PLUS;
-"-"                     return KismetParser::MINUS;
+"+"                     return KismetParser::ADD;
+"-"                     return KismetParser::SUB;
+"*"                     return KismetParser::MULT;
+"/"                     return KismetParser::DIV;
 \n                      return KismetParser::NEWLINE;
 [[:space:]]             /* empty */
 .                       /* empty */

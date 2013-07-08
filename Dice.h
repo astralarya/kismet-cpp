@@ -23,11 +23,6 @@ public:
         unsigned int die;
         unsigned int times;
     };
-    struct dice_roll {
-        std::string roll;
-        std::string report;
-        int result;
-    };
 
     static int roll(const unsigned int& die, const unsigned int& times);
     static int roll(const roll_type& roll);
