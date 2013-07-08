@@ -48,6 +48,7 @@ public:
     typedef std::unique_ptr<MathRollNode> ptr;
     enum mode {ADD,SUB,MULT,DIV};
     MathRollNode(RollNode::ptr& first, RollNode::ptr& second, mode op);
+    MathRollNode(RollNode* first, RollNode* second, mode op);
     dice_roll roll();
     bool multi();
 protected:
@@ -58,8 +59,7 @@ protected:
 class UnaryRollNode: public RollNode {
 public:
     typedef std::unique_ptr<UnaryRollNode> ptr;
-    typedef MathRollNode::mode mode;
-    UnaryRollNode(int i, mode op);
+    UnaryRollNode(int i, MathRollNode::mode op);
     dice_roll roll();
     bool multi();
 protected:

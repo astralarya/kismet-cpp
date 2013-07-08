@@ -19,6 +19,7 @@ _dice() {
     Dice::roll_type roll;
     roll.times = 1;
     roll.die = Options::Instance()->get(DEFAULT_DIE);
+    _dice = roll;
 }
 
 RollNode::dice_roll DiceRollNode::roll() {
@@ -58,6 +59,13 @@ bool IntRollNode::multi() {
 MathRollNode::MathRollNode(RollNode::ptr& first, RollNode::ptr& second, mode op):
 _first(std::move(first)),
 _second(std::move(second)),
+_operator(op) {
+    // ctor
+}
+
+MathRollNode::MathRollNode(RollNode* first, RollNode* second, mode op):
+_first(first),
+_second(second),
 _operator(op) {
     // ctor
 }
@@ -143,15 +151,9 @@ bool MathRollNode::multi() {
     }
 }
 
-UnaryRollNode::UnaryRollNode(int i, mode op):
-_math_node()
+UnaryRollNode::UnaryRollNode(int i, MathRollNode::mode op):
+_math_node(new MathRollNode(new DiceRollNode(),new IntRollNode(i),op))
 {
-/*
-    RollNode::ptr s(new MathRollNode(RollNode::ptr p(new DiceRollNode()),
-                     RollNode::ptr p(new IntRollNode(i)),
-                     op));
-*/
-    // ctor
 }
 
 RollNode::dice_roll UnaryRollNode::roll() {
