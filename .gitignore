@@ -1,0 +1,8 @@
+kismet
+kismet*.tar.gz
+VERSION.log
+*.d
+*.o
+*.cc
+*Parserbase.h
+*Scannerbase.h
