@@ -125,6 +125,7 @@ RollNode::dice_roll MathRollNode::roll() {
 }
 
 bool MathRollNode::multi() {
+    return false;
     switch(_operator) {
     case ADD:
     case SUB:
