@@ -45,26 +45,41 @@ Dice::result_type Dice::roll_str(const Dice::roll_type& roll) {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator(seed);
     std::uniform_int_distribution<unsigned int> distribution(1,roll.die);
-    // roll dice
-    std::multiset<unsigned int> set;
+    // roll dice, recording order
+    std::multimap<unsigned int,unsigned int> rolls, // map of results to roll order
+                                             keep, // map of roll order to results
+                                             drop; // map of roll order to results
     for(int i = 0; i < roll.times; i++)
-        set.insert(distribution(generator));
-    // calculate result
-    int result = 0,
-        pos = 0,
-        top = set.size()-roll.high;
+        rolls.insert(std::pair<unsigned int, unsigned int>(distribution(generator),i));
+    // perform drops
+    int pos = 0,
+        top = rolls.size()-roll.high;
     bool first = true;
+    for(auto it = rolls.begin(); it != rolls.end(); it++) {
+        if(pos >= (roll.low) && pos < top)
+            keep.insert(std::pair<unsigned int, unsigned int>(it->second,it->first));
+        else
+            drop.insert(std::pair<unsigned int, unsigned int>(it->second,it->first));
+        pos++;
+    }
+    // construct report
+    int result = 0;
     std::stringstream report;
-    for(auto it = set.begin(); it != set.end() && pos < top; it++) {
-        if(pos >= (roll.low)) {
+    first = true;
+    for(auto it = keep.begin(); it != keep.end(); it++) {
             if(first)
                 first = false;
             else
                 report << " + ";
-            result += *it;
-            report << *it;
-        }
-        pos++;
+            result += it->second;
+            report << it->second;
+    }
+    for(auto it = drop.begin(); it != drop.end(); it++) {
+            if(first) {
+                report << " ~ ";
+                first = false;
+            }
+            report << it->second;
     }
     Dice::result_type r;
     r.result = result;

@@ -12,6 +12,7 @@
 #include <string>
 #include <sstream>
 #include <set>
+#include <map>
 #include "Options.h"
 
 class Dice {
