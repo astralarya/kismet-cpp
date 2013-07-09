@@ -20,12 +20,13 @@ Mara Kim
 %left ADD SUB
 %left MULT DIV
 %left UNARY
+%token R_PAREN L_PAREN
 %token <string> DIE LABEL
 %token <integer> COUNT CONSTANT
 %type <integer> count constant die
 %type <string> label
 %type <die_type> roll
-%type <roll_type> expr leaf factor
+%type <roll_type> expr leaf
 %type <directive_type> directive
 
 %%
@@ -52,24 +53,22 @@ directive:
     { $$; }
 ;
 expr:
-    factor
+    leaf
     { $$ = std::move($1); }
   | expr ADD expr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::ADD)); }
   | expr SUB expr
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB)); }
+  | expr MULT expr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::MULT)); }
+  | expr DIV expr
+    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::DIV)); }
   | ADD constant %prec UNARY
     { $$ = UnaryRollNode::ptr(new UnaryRollNode($2,MathRollNode::ADD)); }
   | SUB constant %prec UNARY
     { $$ = UnaryRollNode::ptr(new UnaryRollNode($2,MathRollNode::SUB)); }
-;
-factor:
-    leaf
-    { $$ = std::move($1); }
-  | factor MULT factor
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::MULT)); }
-  | factor DIV factor
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::DIV)); }
+  | R_PAREN expr L_PAREN
+    { $$ = ParensRollNode::ptr(new ParensRollNode($2)); }
 ;
 leaf:
     roll

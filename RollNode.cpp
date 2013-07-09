@@ -163,3 +163,16 @@ RollNode::dice_roll UnaryRollNode::roll() {
 bool UnaryRollNode::multi() {
     return false;
 }
+
+ParensRollNode::ParensRollNode(RollNode::ptr& node):
+_node(std::move(node))
+{
+}
+
+RollNode::dice_roll ParensRollNode::roll() {
+    return _node->roll();
+}
+
+bool ParensRollNode::multi() {
+    return true;
+}

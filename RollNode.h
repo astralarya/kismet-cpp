@@ -66,4 +66,14 @@ protected:
     MathRollNode::ptr _math_node;
 };
 
+class ParensRollNode: public RollNode {
+public:
+    typedef std::unique_ptr<ParensRollNode> ptr;
+    ParensRollNode(RollNode::ptr& node);
+    dice_roll roll();
+    bool multi();
+protected:
+    RollNode::ptr _node;
+};
+
 #endif // ROLLNODE_H
