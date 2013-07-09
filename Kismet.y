@@ -35,6 +35,7 @@ input:
 ;
 line:
     NEWLINE
+    { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
   | expr
     { auto roll = ($1)->roll();
       std::cout << "Expr(" << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl; }
