@@ -28,7 +28,17 @@ RollNode::dice_roll DiceRollNode::roll() {
     RollNode::dice_roll r;
     auto roll = Dice::roll_str(_dice);
     std::stringstream ss;
-    ss << _dice.times << 'd' << _dice.die;
+    if(_dice.times > 1)
+        ss << _dice.times ;
+    ss << 'd' << _dice.die;
+    if(_dice.high > 0)
+        ss << "-H";
+    if(_dice.high > 1)
+        ss << _dice.high;
+    if(_dice.low > 0)
+        ss << "-L";
+    if(_dice.low > 1)
+        ss << _dice.low;
     r.roll = ss.str();
     r.report = roll.report;
     r.result = roll.result;
