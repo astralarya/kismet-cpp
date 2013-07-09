@@ -36,14 +36,16 @@ input:
 line:
     NEWLINE
     { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
-  | expr
+  | expr NEWLINE
     { auto roll = ($1)->roll();
-      std::cout << "Expr(" << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl; }
-  | label expr
+      std::cout << "Expr(" << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl;
+      if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
+  | label expr NEWLINE
     { auto roll = ($2)->roll();
-      std::cout << $1 << '(' << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl; }
+      std::cout << $1 << '(' << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl;
+      if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
   | error NEWLINE
-    { std::cout << "error" << std::endl; }
+    { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
 ;
 label:
     LABEL
@@ -58,16 +60,8 @@ expr:
     { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB)); }
   | ADD constant %prec UNARY
     { $$ = UnaryRollNode::ptr(new UnaryRollNode($2,MathRollNode::ADD)); }
-/*
   | SUB constant %prec UNARY
-    { Dice::roll_type roll;
-      roll.times = 1;
-      roll.die = Options::Instance()->get(DEFAULT_DIE);
-      $$ = MathRollNode::ptr(new MathRollNode(
-               RollNode::ptr(new DiceRollNode(roll)),
-               RollNode::ptr(new IntRollNode($2)),
-               MathRollNode::SUB)); }
-*/
+    { $$ = UnaryRollNode::ptr(new UnaryRollNode($2,MathRollNode::SUB)); }
 ;
 factor:
     leaf
