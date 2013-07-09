@@ -25,13 +25,13 @@ MULTILINECOMMENT_E      "*/"
 <MULTILINECOMMENT>{
     {MULTILINECOMMENT_E}    begin(StartCondition__::INITIAL);
     .                   /* empty */
-    \n                  if(Options::Instance()->get(INTERACTIVE)) return KismetParser::NEWLINE;
+    \n                  return KismetParser::NEWLINE;
 }
 
 <WAITING>{
     "..["               begin(StartCondition__::INITIAL);
     .                   /* empty */
-    \n                  if(Options::Instance()->get(INTERACTIVE)) return KismetParser::NEWLINE;
+    \n                  return KismetParser::NEWLINE;
 }
 "]"                     if(Options::Instance()->get(REACTIVE)) begin(StartCondition__::WAITING);
 
