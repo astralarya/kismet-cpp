@@ -50,6 +50,8 @@ directive:
     { $$ = Roll($1); }
   | label expr
     { $$ = Roll($2,$1); }
+  | label
+    { $$; }
 ;
 expr:
     factor
