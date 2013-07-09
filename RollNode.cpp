@@ -19,6 +19,8 @@ _dice() {
     Dice::roll_type roll;
     roll.times = 1;
     roll.die = Options::Instance()->get(DEFAULT_DIE);
+    roll.high = 0;
+    roll.low = 0;
     _dice = roll;
 }
 
@@ -34,7 +36,7 @@ RollNode::dice_roll DiceRollNode::roll() {
 }
 
 bool DiceRollNode::multi() {
-    return _dice.times > 1;
+    return _dice.times > 1 || _dice.high > 0 || _dice.low > 0;
 }
 
 IntRollNode::IntRollNode(int i):
