@@ -9,7 +9,7 @@ RollNode::~RollNode() {
     // dtor
 }
 
-DiceRollNode::DiceRollNode(Dice::roll_type& dice):
+DiceRollNode::DiceRollNode(const Dice::roll_type& dice):
 _dice(dice) {
     // ctor
 }
@@ -22,6 +22,10 @@ _dice() {
     roll.high = 0;
     roll.low = 0;
     _dice = roll;
+}
+
+RollNode::ptr DiceRollNode::copy() const {
+    return RollNode::ptr(new DiceRollNode(_dice));
 }
 
 RollNode::dice_roll DiceRollNode::roll() {
@@ -56,6 +60,10 @@ _integer(i) {
     // ctor
 }
 
+RollNode::ptr IntRollNode::copy() const {
+    return RollNode::ptr(new IntRollNode(_integer));
+}
+
 RollNode::dice_roll IntRollNode::roll() {
     RollNode::dice_roll value;
     std::stringstream ss;
@@ -74,18 +82,22 @@ bool IntRollNode::multi() {
     return false;
 }
 
-MathRollNode::MathRollNode(RollNode::ptr& first, RollNode::ptr& second, mode op):
+MathRollNode::MathRollNode(RollNode::ptr first, RollNode::ptr second, const mode op):
 _first(std::move(first)),
 _second(std::move(second)),
 _operator(op) {
     // ctor
 }
 
-MathRollNode::MathRollNode(RollNode* first, RollNode* second, mode op):
+MathRollNode::MathRollNode(RollNode* first, RollNode* second, const mode op):
 _first(first),
 _second(second),
 _operator(op) {
     // ctor
+}
+
+RollNode::ptr MathRollNode::copy() const {
+    return RollNode::ptr(new MathRollNode(_first->copy(),_second->copy(),_operator));
 }
 
 RollNode::dice_roll MathRollNode::roll() {
@@ -165,26 +177,13 @@ char MathRollNode::opchar(mode m) {
     }
 }
 
-UnaryRollNode::UnaryRollNode(int i, MathRollNode::mode op):
-_math_node(new MathRollNode(new DiceRollNode(),new IntRollNode(i),op))
-{
-}
-
-RollNode::dice_roll UnaryRollNode::roll() {
-    return _math_node->roll();
-}
-
-std::string UnaryRollNode::formula() {
-    return _math_node->formula();
-}
-
-bool UnaryRollNode::multi() {
-    return false;
-}
-
-ParensRollNode::ParensRollNode(RollNode::ptr& node):
+ParensRollNode::ParensRollNode(RollNode::ptr node):
 _node(std::move(node))
 {
+}
+
+RollNode::ptr ParensRollNode::copy() const {
+    return RollNode::ptr(new ParensRollNode(_node->copy()));
 }
 
 RollNode::dice_roll ParensRollNode::roll() {
@@ -199,19 +198,31 @@ bool ParensRollNode::multi() {
     return true;
 }
 
-MultiRollNode::MultiRollNode(RollNode::ptr& node, modifier_list& mod_list):
+MultiRollNode::MultiRollNode(RollNode::ptr node, MultiRollNode::mod_list mod_list):
 _node(std::move(node)),
-_mod_list(std::move(mod_list))
-{
+_mod_list(std::move(mod_list)),
+_node_list() {
+    for(auto it = _mod_list.begin(); it != _mod_list.end(); it++)
+        _node_list.emplace_back(RollNode::ptr(new MathRollNode(_node->copy(),it->argument->copy(),it->op)));
+}
+
+RollNode::ptr MultiRollNode::copy() const {
+    mod_list list;
+    for(auto it = _mod_list.begin(); it != _mod_list.end(); it++) {
+        modifier m;
+        m.op = it->op;
+        m.argument = it->argument->copy();
+        list.emplace_back(std::move(m));
+    }
+    return RollNode::ptr(new MultiRollNode(_node->copy(),std::move(list)));
 }
 
 RollNode::dice_roll MultiRollNode::roll() {
     RollNode::dice_roll value,
-                        math_value;
-    for(auto it = _mod_list.begin(); it != _mod_list.end(); it++) {
-        MathRollNode math_node(_node,it->argument,it->op);
-        math_value = math_node.roll();
-        value.insert(value.end(),math_value.begin(),math_value.end());
+                        itr_value;
+    for(auto it = _node_list.begin(); it != _node_list.end(); it++) {
+        itr_value = (*it)->roll();
+        value.insert(value.end(),itr_value.begin(),itr_value.end());
     }
     return value;
 }

@@ -14,9 +14,12 @@ Mara Kim
              integer: int;
              die_type: Dice::roll_type;
              roll_type: RollNode::ptr;
+             modifier: MultiRollNode::modifier;
+             modifier_list: MultiRollNode::mod_list;
              directive_type: Roll;
 
 %left NEWLINE
+%left COMMA
 %left ADD SUB
 %left MULT DIV
 %left UNARY
@@ -26,6 +29,8 @@ Mara Kim
 %type <integer> count constant die drop_low drop_high
 %type <string> label
 %type <die_type> roll
+%type <modifier> modifier
+%type <modifier_list> modlist
 %type <roll_type> expr leaf
 %type <directive_type> directive
 
@@ -56,19 +61,36 @@ expr:
     leaf
     { $$ = std::move($1); }
   | expr ADD expr
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::ADD)); }
+    { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::ADD)); }
   | expr SUB expr
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::SUB)); }
+    { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::SUB)); }
   | expr MULT expr
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::MULT)); }
+    { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::MULT)); }
   | expr DIV expr
-    { $$ = MathRollNode::ptr(new MathRollNode($1,$3,MathRollNode::DIV)); }
-  | ADD constant %prec UNARY
-    { $$ = UnaryRollNode::ptr(new UnaryRollNode($2,MathRollNode::ADD)); }
-  | SUB constant %prec UNARY
-    { $$ = UnaryRollNode::ptr(new UnaryRollNode($2,MathRollNode::SUB)); }
+    { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::DIV)); }
+  | expr modlist %prec UNARY
+    { $$ = MultiRollNode::ptr(new MultiRollNode(std::move($1),std::move($2))); }
+  | modlist
+    { $$ = MultiRollNode::ptr(new MultiRollNode(RollNode::ptr(new DiceRollNode()),std::move($1))); }
   | R_PAREN expr L_PAREN
-    { $$ = ParensRollNode::ptr(new ParensRollNode($2)); }
+    { $$ = ParensRollNode::ptr(new ParensRollNode(std::move($2))); }
+;
+modlist:
+    modifier
+    { ($$).push_back(std::move($1)); }
+  | modlist COMMA modifier
+    { ($1).push_back(std::move($3));
+      $$ = std::move($1); }
+;
+modifier:
+    ADD expr %prec UNARY
+    { ($$).setArgument(std::move($2));
+      ($$).op = MathRollNode::ADD; }
+/*
+  | SUB expr %prec UNARY
+    { ($$)->argument = std::move($2);
+      ($$)->op = MathRollNode::SUB; }
+*/
 ;
 leaf:
     roll

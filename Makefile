@@ -7,7 +7,7 @@
 
 EXECUTABLE=kismet
 VERSION=0.3
-CFLAGS=-std=c++0x
+CFLAGS=-std=c++0x -g
 LDFLAGS=
 DOXFILE=
 OPTIONSFILE=$(EXECUTABLE).options
