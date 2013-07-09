@@ -91,5 +91,9 @@ int main(int argc, const char* argv[])
     KismetParser kismet;
     kismet.parse();
 
+    // close interactive
+    if(Options::Instance()->get(INTERACTIVE))
+        std::cout << "exit" << std::endl;
+
     return 0;
 }
