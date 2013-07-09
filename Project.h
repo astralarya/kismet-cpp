@@ -52,7 +52,7 @@ typename TypeInfo<int_mode>::init_type TypeInfo<int_mode>::init = 0;
 template <>
 typename TypeInfo<string_mode>::key_type TypeInfo<string_mode>::keys {{DEFAULT_LABEL, "DEFAULT_LABEL"}};
 template <>
-typename TypeInfo<string_mode>::defaults_type TypeInfo<string_mode>::defaults {{DEFAULT_LABEL,{"Expr"}}};
+typename TypeInfo<string_mode>::defaults_type TypeInfo<string_mode>::defaults {{DEFAULT_LABEL,{""}}};
 template <>
 typename TypeInfo<string_mode>::init_type TypeInfo<string_mode>::init = "";
 
