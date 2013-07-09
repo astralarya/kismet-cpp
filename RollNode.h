@@ -52,6 +52,7 @@ public:
     dice_roll roll();
     std::string formula();
     bool multi();
+    static char opchar(mode m);
 protected:
     RollNode::ptr _first, _second;
     mode _operator;
@@ -82,12 +83,19 @@ protected:
 class MultiRollNode: public RollNode {
 public:
     typedef std::unique_ptr<MultiRollNode> ptr;
-    MultiRollNode(DiceRollNode::ptr& dice);
+    struct modifier {
+        RollNode::ptr argument;
+        MathRollNode::mode op;
+    };
+    typedef std::vector<modifier> modifier_list;
+
+    MultiRollNode(RollNode::ptr& dice, modifier_list& mod_list);
     dice_roll roll();
     std::string formula();
     bool multi();
 protected:
-    DiceRollNode::ptr _dice_node;
+    RollNode::ptr _node;
+    modifier_list _mod_list;
 };
 
 #endif // ROLLNODE_H

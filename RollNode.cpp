@@ -103,20 +103,7 @@ RollNode::dice_roll MathRollNode::roll() {
             ss << first_it->report;
             if(_first->multi())
                 ss << ')';
-            switch(_operator) {
-            case ADD:
-                ss << " + ";
-                break;
-            case SUB:
-                ss << " - ";
-                break;
-            case MULT:
-                ss << " * ";
-                break;
-            case DIV:
-                ss << " / ";
-                break;
-            }
+            ss << ' ' << MathRollNode::opchar(_operator) << ' ';
             if(_second->multi())
                 ss << '(';
             ss << second_it->report;
@@ -148,20 +135,6 @@ std::string MathRollNode::formula() {
     std::stringstream ss;
     // construct roll
     ss << _first->formula();
-    switch(_operator) {
-    case ADD:
-        ss << '+';
-        break;
-    case SUB:
-        ss << '-';
-        break;
-    case MULT:
-        ss << '*';
-        break;
-    case DIV:
-        ss << '/';
-        break;
-    }
     ss << _second->formula();
     return ss.str();
 }
@@ -175,6 +148,19 @@ bool MathRollNode::multi() {
     case MULT:
     case DIV:
         return false;
+    }
+}
+
+char MathRollNode::opchar(mode m) {
+    switch(m) {
+    case ADD:
+        return '+';
+    case SUB:
+        return '-';
+    case MULT:
+        return '*';
+    case DIV:
+        return '/';
     }
 }
 
@@ -212,17 +198,36 @@ bool ParensRollNode::multi() {
     return true;
 }
 
-MultiRollNode::MultiRollNode(DiceRollNode::ptr& dice):
-_dice_node(std::move(dice))
+MultiRollNode::MultiRollNode(RollNode::ptr& node, modifier_list& mod_list):
+_node(std::move(node)),
+_mod_list(std::move(mod_list))
 {
 }
 
 RollNode::dice_roll MultiRollNode::roll() {
-    // TODO
+    RollNode::dice_roll value,
+                        math_value;
+    for(auto it = _mod_list.begin(); it != _mod_list.end(); it++) {
+        MathRollNode math_node(_node,it->argument,it->op);
+        math_value = math_node.roll();
+        value.insert(value.end(),math_value.begin(),math_value.end());
+    }
+    return value;
 }
 
 std::string MultiRollNode::formula() {
-    // TODO
+    std::stringstream ss;
+    ss << _node->formula();
+    bool first = true;
+    for(auto it = _mod_list.begin(); it != _mod_list.end(); it++) {
+        if(first)
+            first = false;
+        else
+            ss << ',';
+        ss << MathRollNode::opchar(it->op);
+        ss << it->argument->formula();
+    }
+    return ss.str();
 }
 
 bool MultiRollNode::multi() {
