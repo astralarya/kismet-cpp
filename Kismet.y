@@ -22,7 +22,7 @@ Mara Kim
 %left COMMA
 %left ADD SUB
 %left MULT DIV
-%left UNARY
+%right UNARY
 %token R_PAREN L_PAREN
 %token <string> DIE LABEL DROP_LOW DROP_HIGH
 %token <integer> COUNT CONSTANT
@@ -31,7 +31,7 @@ Mara Kim
 %type <die_type> roll
 %type <modifier> modifier
 %type <modifier_list> modlist
-%type <roll_type> expr leaf
+%type <roll_type> expr leaf modpair
 %type <directive_type> directive
 
 %%
@@ -68,29 +68,31 @@ expr:
     { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::MULT)); }
   | expr DIV expr
     { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::DIV)); }
-  | expr modlist %prec UNARY
+  | R_PAREN expr L_PAREN
+    { $$ = ParensRollNode::ptr(new ParensRollNode(std::move($2))); }
+  | modpair
+    { $$ = std::move($1); }
+;
+modpair:
+    expr modlist
     { $$ = MultiRollNode::ptr(new MultiRollNode(std::move($1),std::move($2))); }
   | modlist
     { $$ = MultiRollNode::ptr(new MultiRollNode(RollNode::ptr(new DiceRollNode()),std::move($1))); }
-  | R_PAREN expr L_PAREN
-    { $$ = ParensRollNode::ptr(new ParensRollNode(std::move($2))); }
 ;
 modlist:
     modifier
-    { ($$).push_back(std::move($1)); }
+    { ($$).emplace_back(std::move($1)); }
   | modlist COMMA modifier
-    { ($1).push_back(std::move($3));
-      $$ = std::move($1); }
+    { ($1).emplace_back(std::move($3));
+      $$ = MultiRollNode::copy_modlist($1); }
 ;
 modifier:
     ADD expr %prec UNARY
     { ($$).setArgument(std::move($2));
       ($$).op = MathRollNode::ADD; }
-/*
   | SUB expr %prec UNARY
-    { ($$)->argument = std::move($2);
-      ($$)->op = MathRollNode::SUB; }
-*/
+    { ($$).argument = std::move($2);
+      ($$).op = MathRollNode::SUB; }
 ;
 leaf:
     roll

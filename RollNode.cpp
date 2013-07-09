@@ -207,14 +207,18 @@ _node_list() {
 }
 
 RollNode::ptr MultiRollNode::copy() const {
+    return RollNode::ptr(new MultiRollNode(_node->copy(),MultiRollNode::copy_modlist(_mod_list)));
+}
+
+MultiRollNode::mod_list MultiRollNode::copy_modlist(const mod_list& inlist) {
     mod_list list;
-    for(auto it = _mod_list.begin(); it != _mod_list.end(); it++) {
+    for(auto it = inlist.begin(); it != inlist.end(); it++) {
         modifier m;
         m.op = it->op;
         m.argument = it->argument->copy();
         list.emplace_back(std::move(m));
     }
-    return RollNode::ptr(new MultiRollNode(_node->copy(),std::move(list)));
+    return list;
 }
 
 RollNode::dice_roll MultiRollNode::roll() {

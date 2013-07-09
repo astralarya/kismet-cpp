@@ -5,7 +5,6 @@
 
 #ifndef ROLLNODE_H
 #define ROLLNODE_H 
-#include <iostream>
 
 #include <memory>
 #include <vector>
@@ -20,7 +19,6 @@ public:
     virtual std::string formula() = 0;
     virtual bool multi() = 0;
     virtual ~RollNode();
-    virtual void sing() {};
 };
 
 class DiceRollNode: public RollNode {
@@ -92,6 +90,7 @@ public:
 
     MultiRollNode(RollNode::ptr node, mod_list mod_list);
     RollNode::ptr copy() const;
+    static mod_list copy_modlist(const mod_list& m);
     dice_roll roll();
     std::string formula();
     bool multi();
