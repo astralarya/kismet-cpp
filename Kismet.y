@@ -37,7 +37,7 @@ line:
     NEWLINE
   | expr
     { auto roll = ($1)->roll();
-      std::cout << "Roll(" << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl; }
+      std::cout << "Expr(" << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl; }
   | label expr
     { auto roll = ($2)->roll();
       std::cout << $1 << '(' << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl; }
