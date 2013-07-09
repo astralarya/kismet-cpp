@@ -79,4 +79,15 @@ protected:
     RollNode::ptr _node;
 };
 
+class MultiRollNode: public RollNode {
+public:
+    typedef std::unique_ptr<MultiRollNode> ptr;
+    MultiRollNode(DiceRollNode::ptr& dice);
+    dice_roll roll();
+    std::string formula();
+    bool multi();
+protected:
+    DiceRollNode::ptr _dice_node;
+};
+
 #endif // ROLLNODE_H

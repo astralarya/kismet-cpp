@@ -187,12 +187,12 @@ RollNode::dice_roll UnaryRollNode::roll() {
     return _math_node->roll();
 }
 
-bool UnaryRollNode::multi() {
-    return false;
-}
-
 std::string UnaryRollNode::formula() {
     return _math_node->formula();
+}
+
+bool UnaryRollNode::multi() {
+    return false;
 }
 
 ParensRollNode::ParensRollNode(RollNode::ptr& node):
@@ -204,10 +204,27 @@ RollNode::dice_roll ParensRollNode::roll() {
     return _node->roll();
 }
 
+std::string ParensRollNode::formula() {
+    return _node->formula();
+}
+
 bool ParensRollNode::multi() {
     return true;
 }
 
-std::string ParensRollNode::formula() {
-    return _node->formula();
+MultiRollNode::MultiRollNode(DiceRollNode::ptr& dice):
+_dice_node(std::move(dice))
+{
+}
+
+RollNode::dice_roll MultiRollNode::roll() {
+    // TODO
+}
+
+std::string MultiRollNode::formula() {
+    // TODO
+}
+
+bool MultiRollNode::multi() {
+    return true;
 }
