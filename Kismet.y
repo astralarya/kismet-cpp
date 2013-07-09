@@ -84,6 +84,9 @@ roll:
   | die
     { ($$).times = 1;
       ($$).die = $1; }
+  | count
+    { ($$).times = $1;
+      ($$).die = Options::Instance()->get(DEFAULT_DIE); }
 ;
 count:
     COUNT
