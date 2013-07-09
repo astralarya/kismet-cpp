@@ -50,7 +50,7 @@ directive:
   | label expr
     { $$ = Roll($2,$1); }
   | label
-    { $$; }
+    { ($$).setLabel($1); }
 ;
 expr:
     leaf

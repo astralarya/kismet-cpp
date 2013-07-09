@@ -35,11 +35,10 @@ const Roll::dice_roll& Roll::result() const {
 
 std::string Roll::print() const {
     std::stringstream ss;
-    if(_root) {
-        if(_label.size())
-            ss << _label << ':';
+    if(_label.size())
+        ss << _label << ':';
+    if(_root)
         ss << '[' << _roll.roll  << "] " << _roll.report << " = " << _roll.result;
-    }
     return ss.str();
 }
 
