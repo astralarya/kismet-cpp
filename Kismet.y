@@ -41,13 +41,13 @@ input:
     /* empty */
   | input line
     { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
+  | error NEWLINE
 ;
 line:
     NEWLINE
   | directive NEWLINE
     { ($1).roll();
       std::cout << ($1).print() << std::endl; }
-  | error NEWLINE
 ;
 directive:
     expr
