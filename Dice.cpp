@@ -5,6 +5,20 @@
 
 #include "Dice.h"
 
+// Global static pointer that ensures a single instance
+Dice::generator* Dice::_Instance = NULL;
+
+// Function call to return instance of this class
+Dice::generator& Dice::Generator() {
+    if(!_Instance) // if there is no instance
+    {
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        _Instance = new std::default_random_engine(seed);
+    }
+
+    return *_Instance;
+}
+
 int Dice::roll(const unsigned int die, const unsigned int times) {
     Dice::roll_type roll;
     roll.die = die;
@@ -14,13 +28,11 @@ int Dice::roll(const unsigned int die, const unsigned int times) {
 
 int Dice::roll(const Dice::roll_type& roll) {
     // prepare random generator
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
     std::uniform_int_distribution<unsigned int> distribution(1,roll.die);
     // roll dice
     std::multiset<unsigned int> set;
     for(int i = 0; i < roll.times; i++)
-        set.insert(distribution(generator));
+        set.insert(distribution(Dice::Generator()));
     // calculate result
     int result = 0,
         pos = 0,
@@ -50,7 +62,7 @@ Dice::result_type Dice::roll_str(const Dice::roll_type& roll) {
                                              keep, // map of roll order to results
                                              drop; // map of roll order to results
     for(int i = 0; i < roll.times; i++)
-        rolls.insert(std::pair<unsigned int, unsigned int>(distribution(generator),i));
+        rolls.insert(std::pair<unsigned int, unsigned int>(distribution(Dice::Generator()),i));
     // perform drops
     int pos = 0,
         top = rolls.size()-roll.high;

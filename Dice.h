@@ -45,6 +45,11 @@ public:
     static int roll(const roll_type& roll);
     static result_type roll_str(const unsigned int die, const unsigned int times);
     static result_type roll_str(const roll_type& roll);
+    // global static random engine
+    typedef std::default_random_engine generator;
+    static generator& Generator();
+private:
+    static generator* _Instance;
 };
 
 #endif // DICE_H
