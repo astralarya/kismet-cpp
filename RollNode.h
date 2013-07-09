@@ -7,17 +7,15 @@
 #define ROLLNODE_H
 
 #include <memory>
+#include <vector>
 #include "Dice.h"
 
 class RollNode {
 public:
-    struct dice_roll {
-        std::string roll;
-        std::string report;
-        double result;
-    };
+    typedef std::vector<Dice::result_type> dice_roll;
     typedef std::unique_ptr<RollNode> ptr;
     virtual dice_roll roll() = 0;
+    virtual std::string formula() = 0;
     virtual bool multi() = 0;
     virtual ~RollNode();
 };
@@ -28,6 +26,7 @@ public:
     DiceRollNode();
     DiceRollNode(Dice::roll_type& dice);
     dice_roll roll();
+    std::string formula();
     bool multi();
 protected:
     Dice::roll_type _dice;
@@ -38,6 +37,7 @@ public:
     typedef std::unique_ptr<IntRollNode> ptr;
     IntRollNode(int i);
     dice_roll roll();
+    std::string formula();
     bool multi();
 protected:
     int _integer;
@@ -50,6 +50,7 @@ public:
     MathRollNode(RollNode::ptr& first, RollNode::ptr& second, mode op);
     MathRollNode(RollNode* first, RollNode* second, mode op);
     dice_roll roll();
+    std::string formula();
     bool multi();
 protected:
     RollNode::ptr _first, _second;
@@ -61,6 +62,7 @@ public:
     typedef std::unique_ptr<UnaryRollNode> ptr;
     UnaryRollNode(int i, MathRollNode::mode op);
     dice_roll roll();
+    std::string formula();
     bool multi();
 protected:
     MathRollNode::ptr _math_node;
@@ -71,6 +73,7 @@ public:
     typedef std::unique_ptr<ParensRollNode> ptr;
     ParensRollNode(RollNode::ptr& node);
     dice_roll roll();
+    std::string formula();
     bool multi();
 protected:
     RollNode::ptr _node;

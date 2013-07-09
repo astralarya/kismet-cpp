@@ -25,8 +25,13 @@ _dice() {
 }
 
 RollNode::dice_roll DiceRollNode::roll() {
-    RollNode::dice_roll r;
+    RollNode::dice_roll value;
     auto roll = Dice::roll_str(_dice);
+    value.push_back(Dice::result_type(roll.report,roll.result));
+    return value;
+}
+
+std::string DiceRollNode::formula() {
     std::stringstream ss;
     if(_dice.times > 1)
         ss << _dice.times ;
@@ -39,10 +44,7 @@ RollNode::dice_roll DiceRollNode::roll() {
         ss << "-L";
     if(_dice.low > 1)
         ss << _dice.low;
-    r.roll = ss.str();
-    r.report = roll.report;
-    r.result = roll.result;
-    return r;
+    return ss.str();
 }
 
 bool DiceRollNode::multi() {
@@ -55,13 +57,17 @@ _integer(i) {
 }
 
 RollNode::dice_roll IntRollNode::roll() {
-    RollNode::dice_roll r;
+    RollNode::dice_roll value;
     std::stringstream ss;
     ss << _integer;
-    r.roll = ss.str();
-    r.report = ss.str();
-    r.result = _integer;
-    return r;
+    value.push_back(Dice::result_type(ss.str(),_integer));
+    return value;
+}
+
+std::string IntRollNode::formula() {
+    std::stringstream ss;
+    ss << _integer;
+    return ss.str();
 }
 
 bool IntRollNode::multi() {
@@ -83,13 +89,65 @@ _operator(op) {
 }
 
 RollNode::dice_roll MathRollNode::roll() {
+    RollNode::dice_roll value;
+    std::stringstream ss;
     // roll dice
     auto first = _first->roll();
-    auto second = _second->roll();
-    RollNode::dice_roll r;
+    for(auto first_it = first.begin(); first_it != first.end(); first_it++) {
+        auto second = _second->roll();
+        for(auto second_it = second.begin(); second_it != second.end(); second_it++) {
+            // construct report
+            ss.str("");
+            if(_first->multi())
+                ss << '(';
+            ss << first_it->report;
+            if(_first->multi())
+                ss << ')';
+            switch(_operator) {
+            case ADD:
+                ss << " + ";
+                break;
+            case SUB:
+                ss << " - ";
+                break;
+            case MULT:
+                ss << " * ";
+                break;
+            case DIV:
+                ss << " / ";
+                break;
+            }
+            if(_second->multi())
+                ss << '(';
+            ss << second_it->report;
+            if(_second->multi())
+                ss << ')';
+            // set result
+            double result;
+            switch(_operator) {
+            case ADD:
+                result = first_it->result + second_it->result;
+                break;
+            case SUB:
+                result = first_it->result - second_it->result;
+                break;
+            case MULT:
+                result = first_it->result * second_it->result;
+                break;
+            case DIV:
+                result = first_it->result / second_it->result;
+                break;
+            }
+            value.push_back(Dice::result_type(ss.str(),result));
+        }
+    }
+    return value;
+}
+
+std::string MathRollNode::formula() {
     std::stringstream ss;
     // construct roll
-    ss << first.roll;
+    ss << _first->formula();
     switch(_operator) {
     case ADD:
         ss << '+';
@@ -104,51 +162,8 @@ RollNode::dice_roll MathRollNode::roll() {
         ss << '/';
         break;
     }
-    ss << second.roll;
-    r.roll = ss.str();
-    // construct report
-    ss.str("");
-    if(_first->multi())
-        ss << '(';
-    ss << first.report;
-    if(_first->multi())
-        ss << ')';
-    switch(_operator) {
-    case ADD:
-        ss << " + ";
-        break;
-    case SUB:
-        ss << " - ";
-        break;
-    case MULT:
-        ss << " * ";
-        break;
-    case DIV:
-        ss << " / ";
-        break;
-    }
-    if(_second->multi())
-        ss << '(';
-    ss << second.report;
-    if(_second->multi())
-        ss << ')';
-    r.report = ss.str();
-    // set result
-    switch(_operator) {
-    case ADD:
-        r.result = first.result + second.result;
-        break;
-    case SUB:
-        r.result = first.result - second.result;
-        break;
-    case MULT:
-        r.result = first.result * second.result;
-        break;
-    case DIV:
-        r.result = first.result / second.result;
-        break;
-    }
-    return r;
+    ss << _second->formula();
+    return ss.str();
 }
 
 bool MathRollNode::multi() {
@@ -176,6 +191,10 @@ bool UnaryRollNode::multi() {
     return false;
 }
 
+std::string UnaryRollNode::formula() {
+    return _math_node->formula();
+}
+
 ParensRollNode::ParensRollNode(RollNode::ptr& node):
 _node(std::move(node))
 {
@@ -187,4 +206,8 @@ RollNode::dice_roll ParensRollNode::roll() {
 
 bool ParensRollNode::multi() {
     return true;
+}
+
+std::string ParensRollNode::formula() {
+    return _node->formula();
 }

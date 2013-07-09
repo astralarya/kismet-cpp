@@ -19,13 +19,21 @@ class Dice {
 public:
     struct result_type {
         std::string report;
-        int result;
+        double result;
+
+        result_type():
+        report(),
+        result(0) {}
+        result_type(std::string report_in,double result_in):
+        report(report_in),
+        result(result_in) {}
     };
     struct roll_type {
         unsigned int die;
         unsigned int times;
         unsigned int high;
         unsigned int low;
+
         roll_type():
         die(Options::Instance()->get(DEFAULT_DIE)),
         times(1),
