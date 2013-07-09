@@ -135,6 +135,7 @@ std::string MathRollNode::formula() {
     std::stringstream ss;
     // construct roll
     ss << _first->formula();
+    ss << MathRollNode::opchar(_operator);
     ss << _second->formula();
     return ss.str();
 }
