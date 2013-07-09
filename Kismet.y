@@ -22,7 +22,6 @@ Mara Kim
 %left COMMA
 %left ADD SUB
 %left MULT DIV
-%right UNARY
 %token R_PAREN L_PAREN
 %token <string> DIE LABEL DROP_LOW DROP_HIGH
 %token <integer> COUNT CONSTANT
@@ -87,10 +86,10 @@ modlist:
       $$ = MultiRollNode::copy_modlist($1); }
 ;
 modifier:
-    ADD expr %prec UNARY
+    ADD expr
     { ($$).setArgument(std::move($2));
       ($$).op = MathRollNode::ADD; }
-  | SUB expr %prec UNARY
+  | SUB expr
     { ($$).argument = std::move($2);
       ($$).op = MathRollNode::SUB; }
 ;
