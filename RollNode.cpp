@@ -191,7 +191,9 @@ RollNode::dice_roll ParensRollNode::roll() {
 }
 
 std::string ParensRollNode::formula() {
-    return _node->formula();
+    std::stringstream ss;
+    ss << '(' << _node->formula() << ')';
+    return ss.str();
 }
 
 bool ParensRollNode::multi() {
