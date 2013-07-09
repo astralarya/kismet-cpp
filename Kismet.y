@@ -31,7 +31,7 @@ Mara Kim
 %type <die_type> roll
 %type <modifier> modifier
 %type <modifier_list> modlist
-%type <roll_type> expr leaf modpair
+%type <roll_type> expr factor leaf modpair
 %type <directive_type> directive
 
 %%
@@ -58,20 +58,24 @@ directive:
     { ($$).setLabel($1); }
 ;
 expr:
-    leaf
+    factor
     { $$ = std::move($1); }
   | expr ADD expr
     { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::ADD)); }
   | expr SUB expr
     { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::SUB)); }
-  | expr MULT expr
+  | modpair
+    { $$ = std::move($1); }
+;
+factor:
+    leaf
+    { $$ = std::move($1); }
+  | factor MULT factor
     { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::MULT)); }
-  | expr DIV expr
+  | factor DIV factor
     { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::DIV)); }
   | R_PAREN expr L_PAREN
     { $$ = ParensRollNode::ptr(new ParensRollNode(std::move($2))); }
-  | modpair
-    { $$ = std::move($1); }
 ;
 modpair:
     expr modlist
