@@ -18,6 +18,7 @@ public:
     virtual dice_roll roll() = 0;
     virtual std::string formula() = 0;
     virtual bool multi() = 0;
+    virtual bool group() = 0;
     virtual ~RollNode();
 };
 
@@ -30,6 +31,7 @@ public:
     dice_roll roll();
     std::string formula();
     bool multi();
+    bool group();
 protected:
     Dice::roll_type _dice;
 };
@@ -42,6 +44,7 @@ public:
     dice_roll roll();
     std::string formula();
     bool multi();
+    bool group();
 protected:
     int _integer;
 };
@@ -56,6 +59,7 @@ public:
     dice_roll roll();
     std::string formula();
     bool multi();
+    bool group();
     static char opchar(mode m);
 protected:
     RollNode::ptr _first, _second;
@@ -70,6 +74,7 @@ public:
     dice_roll roll();
     std::string formula();
     bool multi();
+    bool group();
 protected:
     RollNode::ptr _node;
 };
@@ -94,6 +99,7 @@ public:
     dice_roll roll();
     std::string formula();
     bool multi();
+    bool group();
 protected:
     RollNode::ptr _node;
 

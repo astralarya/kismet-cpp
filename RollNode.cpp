@@ -55,6 +55,10 @@ bool DiceRollNode::multi() {
     return _dice.times > 1 || _dice.high > 0 || _dice.low > 0;
 }
 
+bool DiceRollNode::group() {
+    return false;
+}
+
 IntRollNode::IntRollNode(int i):
 _integer(i) {
     // ctor
@@ -79,6 +83,10 @@ std::string IntRollNode::formula() {
 }
 
 bool IntRollNode::multi() {
+    return false;
+}
+
+bool IntRollNode::group() {
     return false;
 }
 
@@ -146,9 +154,17 @@ RollNode::dice_roll MathRollNode::roll() {
 std::string MathRollNode::formula() {
     std::stringstream ss;
     // construct roll
+    if(_first->group())
+        ss << '(';
     ss << _first->formula();
+    if(_first->group())
+        ss << ')';
     ss << MathRollNode::opchar(_operator);
+    if(_second->group())
+        ss << '(';
     ss << _second->formula();
+    if(_second->group())
+        ss << '(';
     return ss.str();
 }
 
@@ -162,6 +178,10 @@ bool MathRollNode::multi() {
     case DIV:
         return false;
     }
+}
+
+bool MathRollNode::group() {
+    return false;
 }
 
 char MathRollNode::opchar(mode m) {
@@ -191,12 +211,14 @@ RollNode::dice_roll ParensRollNode::roll() {
 }
 
 std::string ParensRollNode::formula() {
-    std::stringstream ss;
-    ss << '(' << _node->formula() << ')';
-    return ss.str();
+    return _node->formula();
 }
 
 bool ParensRollNode::multi() {
+    return true;
+}
+
+bool ParensRollNode::group() {
     return true;
 }
 
@@ -235,7 +257,11 @@ RollNode::dice_roll MultiRollNode::roll() {
 
 std::string MultiRollNode::formula() {
     std::stringstream ss;
+    if(_node->group())
+        ss << '(';
     ss << _node->formula();
+    if(_node->group())
+        ss << ')';
     bool first = true;
     for(auto it = _mod_list.begin(); it != _mod_list.end(); it++) {
         if(first)
@@ -243,11 +269,19 @@ std::string MultiRollNode::formula() {
         else
             ss << ',';
         ss << MathRollNode::opchar(it->op);
+        if(it->argument->group())
+            ss << '(';
         ss << it->argument->formula();
+        if(it->argument->group())
+            ss << ')';
     }
     return ss.str();
 }
 
 bool MultiRollNode::multi() {
-    return true;
+    return false;
+}
+
+bool MultiRollNode::group() {
+    return _mod_list.size() > 1;
 }
