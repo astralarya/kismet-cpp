@@ -60,10 +60,6 @@ directive:
 expr:
     factor
     { $$ = std::move($1); }
-  | expr ADD expr
-    { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::ADD)); }
-  | expr SUB expr
-    { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::SUB)); }
   | modpair
     { $$ = std::move($1); }
 ;
