@@ -26,6 +26,11 @@ public:
         unsigned int times;
         unsigned int high;
         unsigned int low;
+        roll_type():
+        die(Options::Instance()->get(DEFAULT_DIE)),
+        times(0),
+        high(0),
+        low(0) {}
     };
 
     static int roll(const unsigned int die, const unsigned int times);

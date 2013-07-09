@@ -54,7 +54,6 @@ Dice::result_type Dice::roll_str(const Dice::roll_type& roll) {
     // perform drops
     int pos = 0,
         top = rolls.size()-roll.high;
-    bool first = true;
     for(auto it = rolls.begin(); it != rolls.end(); it++) {
         if(pos >= (roll.low) && pos < top)
             keep.insert(std::pair<unsigned int, unsigned int>(it->second,it->first));
@@ -65,7 +64,7 @@ Dice::result_type Dice::roll_str(const Dice::roll_type& roll) {
     // construct report
     int result = 0;
     std::stringstream report;
-    first = true;
+    bool first = true;
     for(auto it = keep.begin(); it != keep.end(); it++) {
             if(first)
                 first = false;
@@ -74,11 +73,13 @@ Dice::result_type Dice::roll_str(const Dice::roll_type& roll) {
             result += it->second;
             report << it->second;
     }
+    first = true;
     for(auto it = drop.begin(); it != drop.end(); it++) {
             if(first) {
                 report << " ~ ";
                 first = false;
-            }
+            } else
+                report << ' ';
             report << it->second;
     }
     Dice::result_type r;

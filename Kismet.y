@@ -21,9 +21,9 @@ Mara Kim
 %left MULT DIV
 %left UNARY
 %token R_PAREN L_PAREN
-%token <string> DIE LABEL
+%token <string> DIE LABEL DROP_LOW DROP_HIGH
 %token <integer> COUNT CONSTANT
-%type <integer> count constant die
+%type <integer> count constant die drop_low drop_high
 %type <string> label
 %type <die_type> roll
 %type <roll_type> expr leaf
@@ -81,11 +81,13 @@ roll:
     { ($$).times = $1;
       ($$).die = $2; }
   | die
-    { ($$).times = 1;
-      ($$).die = $1; }
+    { ($$).die = $1; }
   | count
-    { ($$).times = $1;
-      ($$).die = Options::Instance()->get(DEFAULT_DIE); }
+    { ($$).times = $1; }
+  | roll drop_low
+    { ($$).low = $2; }
+  | roll drop_high
+    { ($$).high = $2; }
 ;
 count:
     COUNT
@@ -98,6 +100,24 @@ constant:
     { std::stringstream ss;
       ss << d_scanner.matched();
       ss >> $$; }
+;
+drop_low:
+    DROP_LOW
+    { std::stringstream ss;
+      ss << d_scanner.matched().substr(2);
+      if(ss.str().size())
+          ss >> $$;
+      else
+          $$ = 1; }
+;
+drop_high:
+    DROP_HIGH
+    { std::stringstream ss;
+      ss << d_scanner.matched().substr(2);
+      if(ss.str().size())
+          ss >> $$;
+      else
+          $$ = 1; }
 ;
 die:
     DIE
