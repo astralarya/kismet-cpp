@@ -12,8 +12,7 @@ _label() {
 }
 
 Roll::Roll(RollNode::ptr& root, std::string& label):
-_root(std::move(root)),
-_label(label) {
+_root(std::move(root)), _label(label) {
     // ctor
 }
 
@@ -37,7 +36,7 @@ const Roll::dice_roll& Roll::result() const {
 std::string Roll::print() const {
     std::stringstream ss;
     if(_root)
-        ss << _label << ": [" << _roll.roll  << "] " << _roll.report << " = " << _roll.result;
+        ss << _label << ":[" << _roll.roll  << "] " << _roll.report << " = " << _roll.result;
     return ss.str();
 }
 

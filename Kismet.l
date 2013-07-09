@@ -30,7 +30,7 @@ MULTILINECOMMENT_E      "*/"
 d[[:digit:]]+           return KismetParser::DIE;
 [[:digit:]]+/d          return KismetParser::COUNT;
 [[:digit:]]+            return KismetParser::CONSTANT;
-[[:alpha:]()<>{}][[:alpha:][:space:]()<>{}]*:          return KismetParser::LABEL;
+[][()<>{}[:alpha:]][][()<>{}[:alpha:][:space:]]*:          return KismetParser::LABEL;
 
 "+"                     return KismetParser::ADD;
 "-"                     return KismetParser::SUB;
