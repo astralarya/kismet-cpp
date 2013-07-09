@@ -48,6 +48,7 @@ MULTILINECOMMENT_E      "*/"
 "/"                     return KismetParser::DIV;
 "("                     return KismetParser::R_PAREN;
 ")"                     return KismetParser::L_PAREN;
+","                     return KismetParser::COMMA;
 \n                      return KismetParser::NEWLINE;
 ^exit$                  if(Options::Instance()->get(INTERACTIVE)) return EOF;
 [[:space:]]             /* empty */
