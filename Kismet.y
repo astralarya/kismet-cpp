@@ -39,8 +39,8 @@ line:
     NEWLINE
     { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
   | directive NEWLINE
-    { auto roll = ($1).roll();
-      std::cout << ($1).label() << '(' << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl;
+    { ($1).roll();
+      std::cout << ($1).print() << std::endl;
       if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
   | error NEWLINE
     { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }

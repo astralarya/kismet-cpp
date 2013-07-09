@@ -21,11 +21,22 @@ Roll::~Roll() {
 }
 
 Roll::dice_roll Roll::roll() {
-    return _root->roll();
+    _roll = _root->roll();
+    return _roll;
 }
 
 void Roll::setRoll(RollNode::ptr& root) {
     _root = std::move(root);
+}
+
+const Roll::dice_roll& Roll::result() const {
+    return _roll;
+}
+
+std::string Roll::print() const {
+    std::stringstream ss;
+    ss << _label << '(' << _roll.roll  << "): " << _roll.report << " = " << _roll.result;
+    return ss.str();
 }
 
 void Roll::setLabel(std::string& label) {

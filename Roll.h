@@ -18,12 +18,15 @@ public:
 
     dice_roll roll();
     void setRoll(RollNode::ptr& root);
+    const dice_roll& result() const;
+    std::string print() const;
     void setLabel(std::string& label);
     const std::string& label() const;
 
 private:
     RollNode::ptr _root;
     std::string _label;
+    dice_roll _roll;
 };
 
 #endif // ROLL_H
