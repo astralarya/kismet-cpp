@@ -12,7 +12,7 @@ Dice::generator* Dice::_Instance = NULL;
 Dice::generator& Dice::Generator() {
     if(!_Instance) // if there is no instance
     {
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        unsigned seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
         _Instance = new std::default_random_engine(seed);
     }
 
