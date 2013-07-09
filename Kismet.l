@@ -37,6 +37,6 @@ d[[:digit:]]+           return KismetParser::DIE;
 "*"                     return KismetParser::MULT;
 "/"                     return KismetParser::DIV;
 \n                      return KismetParser::NEWLINE;
-^exit$                  return EOF;
+^exit$                  if(Options::Instance()->get(INTERACTIVE)) return EOF;
 [[:space:]]             /* empty */
 .                       /* empty */
