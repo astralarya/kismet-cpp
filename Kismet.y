@@ -14,6 +14,7 @@ Mara Kim
              integer: int;
              die_type: Dice::roll_type;
              roll_type: RollNode::ptr;
+             directive_type: Roll;
 
 %left NEWLINE
 %left ADD SUB
@@ -22,9 +23,10 @@ Mara Kim
 %token <string> DIE LABEL
 %token <integer> COUNT CONSTANT
 %type <integer> count constant die
+%type <string> label
 %type <die_type> roll
 %type <roll_type> expr leaf factor
-%type <string> label
+%type <directive_type> directive
 
 %%
 /* rules */
@@ -36,20 +38,18 @@ input:
 line:
     NEWLINE
     { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
-  | expr NEWLINE
-    { auto roll = ($1)->roll();
-      std::cout << "Expr(" << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl;
-      if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
-  | label expr NEWLINE
-    { auto roll = ($2)->roll();
-      std::cout << $1 << '(' << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl;
+  | directive NEWLINE
+    { auto roll = ($1).roll();
+      std::cout << ($1).label() << '(' << roll.roll  << "): " << roll.report << " = " << roll.result << std::endl;
       if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
   | error NEWLINE
     { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
 ;
-label:
-    LABEL
-    { $$ = d_scanner.matched().substr(0,d_scanner.matched().size()-1); }
+directive:
+    expr
+    { $$ = Roll($1); }
+  | label expr
+    { $$ = Roll($2,$1); }
 ;
 expr:
     factor
@@ -102,4 +102,8 @@ die:
     { std::stringstream ss;
       ss << d_scanner.matched().substr(1); 
       ss >> $$; }
+;
+label:
+    LABEL
+    { $$ = d_scanner.matched().substr(0,d_scanner.matched().size()-1); }
 ;
