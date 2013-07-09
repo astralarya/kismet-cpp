@@ -42,14 +42,14 @@ MULTILINECOMMENT_E      "*/"
 [[:digit:]]+            return KismetParser::CONSTANT;
 [[:alpha:]][()<>{}[:alpha:][:space:]]*:          return KismetParser::LABEL;
 
-"+"                     return KismetParser::ADD;
-"-"                     return KismetParser::SUB;
-"*"                     return KismetParser::MULT;
-"/"                     return KismetParser::DIV;
-"("                     return KismetParser::R_PAREN;
-")"                     return KismetParser::L_PAREN;
-","                     return KismetParser::COMMA;
-\n                      return KismetParser::NEWLINE;
-^exit$                  if(Options::Instance()->get(INTERACTIVE)) return EOF;
+"+"             return KismetParser::ADD;
+"-"             return KismetParser::SUB;
+"*"             return KismetParser::MULT;
+"/"             return KismetParser::DIV;
+"("             return KismetParser::R_PAREN;
+")"             return KismetParser::L_PAREN;
+","             return KismetParser::COMMA;
+\n              return KismetParser::NEWLINE;
+^[[:space:]]*exit[[:space:]]*$                  if(Options::Instance()->get(INTERACTIVE)) return EOF; // Interactive exit
 [[:space:]]             /* empty */
 .                       /* empty */
