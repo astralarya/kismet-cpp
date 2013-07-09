@@ -84,6 +84,10 @@ roll:
     { ($$).die = $1; }
   | count
     { ($$).times = $1; }
+  | drop_low
+    { ($$).low = $1; }
+  | drop_high
+    { ($$).high = $1; }
   | roll drop_low
     { ($$).low = $2; }
   | roll drop_high
