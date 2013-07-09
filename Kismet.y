@@ -127,7 +127,10 @@ die:
     DIE
     { std::stringstream ss;
       ss << d_scanner.matched().substr(1); 
-      ss >> $$; }
+      if(ss.str() == "%")
+          $$ = 100;
+      else
+          ss >> $$; }
 ;
 label:
     LABEL
