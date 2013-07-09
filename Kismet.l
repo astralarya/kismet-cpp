@@ -27,8 +27,8 @@ MULTILINECOMMENT_E      "*/"
     .|\n
 }
 
-d[[:digit:]]+           return KismetParser::DIE;
-[[:digit:]]+/d          return KismetParser::COUNT;
+[dD][[:digit:]]+           return KismetParser::DIE;
+[[:digit:]]+/[dD]          return KismetParser::COUNT;
 [[:digit:]]+            return KismetParser::CONSTANT;
 [[:alpha:]][][()<>{}[:alpha:][:space:]]*:          return KismetParser::LABEL;
 
