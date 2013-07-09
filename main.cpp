@@ -32,7 +32,9 @@ void printhelp()
     printshorthelp();
     std::cout << "<Description>\n"
               << "Option\t\tGNU long option\t\tMeaning\n"
-              << "-r\t\t--reactive\t\t\tReactive mode\n"
+              << "-r\t\t--reactive\t\t\tReactive mode: wait for ..[] attention sequence; Default non-interactive\n"
+              << "-n\t\t--non-interactive\t\t\tNon-interactive mode\n"
+              << "-i\t\t--interactive\t\t\tForce interactive mode\n"
               << "-h, -?\t\t--help\t\t\tShow this message\n"
               << "-v\t\t--version\t\tOutput program version\n"
               << "-V\t\t--version-long\t\tOutput full program version\n";
@@ -80,6 +82,17 @@ int main(int argc, const char* argv[])
        init.flag('r') ) {
         // set reactive
         Options::Instance()->set(REACTIVE,true);
+        Options::Instance()->set(INTERACTIVE,false);
+    }
+    if(init.flag("non-interactive") ||
+       init.flag('n') ) {
+        // set non-interactive
+        Options::Instance()->set(INTERACTIVE,false);
+    }
+    if(init.flag("interactive") ||
+       init.flag('i') ) {
+        // set interactive
+        Options::Instance()->set(INTERACTIVE,true);
     }
 
     if(stop) {
