@@ -37,6 +37,6 @@ d[[:digit:]]+           return KismetParser::DIE;
 "*"                     return KismetParser::MULT;
 "/"                     return KismetParser::DIV;
 \n                      return KismetParser::NEWLINE;
-^exit$                  /* This would be an exit directive */
+^exit$                  return EOF;
 [[:space:]]             /* empty */
 .                       /* empty */
