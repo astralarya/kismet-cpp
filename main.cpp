@@ -32,6 +32,7 @@ void printhelp()
     printshorthelp();
     std::cout << "<Description>\n"
               << "Option\t\tGNU long option\t\tMeaning\n"
+              << "-r\t\t--reactive\t\t\tReactive mode\n"
               << "-h, -?\t\t--help\t\t\tShow this message\n"
               << "-v\t\t--version\t\tOutput program version\n"
               << "-V\t\t--version-long\t\tOutput full program version\n";
@@ -74,6 +75,11 @@ int main(int argc, const char* argv[])
        init.flag('?')) {
         printhelp();
         stop = true;
+    }
+    if(init.flag("reactive") ||
+       init.flag('r') ) {
+        // set reactive
+        Options::Instance()->set(REACTIVE,true);
     }
 
     if(stop) {

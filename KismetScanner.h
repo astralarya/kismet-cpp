@@ -6,6 +6,7 @@
 // $insert baseclass_h
 #include "KismetScannerbase.h"
 #include "KismetParserbase.h"
+#include "Options.h"
 
 // $insert namespace-open
 namespace KISMET
@@ -34,7 +35,10 @@ class KismetScanner: public KismetScannerBase
 inline KismetScanner::KismetScanner(std::istream &in, std::ostream &out)
 :
     KismetScannerBase(in, out)
-{}
+{
+    if(Options::Instance()->get(REACTIVE))
+        begin(StartCondition__::WAITING);
+}
 
 
 inline void KismetScanner::preCode() 

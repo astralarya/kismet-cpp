@@ -14,7 +14,7 @@ LINECOMMENT_S           "//"
 MULTILINECOMMENT_S      "/*"
 MULTILINECOMMENT_E      "*/"
 
-%x MULTILINECOMMENT
+%x MULTILINECOMMENT WAITING
 
 /* rules */
 %%
@@ -24,8 +24,16 @@ MULTILINECOMMENT_E      "*/"
 {MULTILINECOMMENT_S}    begin(StartCondition__::MULTILINECOMMENT);
 <MULTILINECOMMENT>{
     {MULTILINECOMMENT_E}    begin(StartCondition__::INITIAL);
-    .|\n
+    .                   /* empty */
+    \n                  if(Options::Instance()->get(INTERACTIVE)) return KismetParser::NEWLINE;
 }
+
+<WAITING>{
+    "..["               begin(StartCondition__::INITIAL);
+    .                   /* empty */
+    \n                  if(Options::Instance()->get(INTERACTIVE)) return KismetParser::NEWLINE;
+}
+"]"                     if(Options::Instance()->get(REACTIVE)) begin(StartCondition__::WAITING);
 
 [dD](%|[[:digit:]]+)    return KismetParser::DIE;
 [[:digit:]]+/[dD]       return KismetParser::COUNT;
