@@ -34,16 +34,14 @@ Mara Kim
 input:
     /* empty */
   | input line
+    { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
 ;
 line:
     NEWLINE
-    { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
   | directive NEWLINE
     { ($1).roll();
-      std::cout << ($1).print() << std::endl;
-      if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
+      std::cout << ($1).print() << std::endl; }
   | error NEWLINE
-    { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
 ;
 directive:
     expr
