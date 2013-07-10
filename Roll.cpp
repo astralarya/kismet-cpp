@@ -39,8 +39,11 @@ std::string Roll::print() const {
         ss << _label << ':';
     if(_root)
         ss << '[' << _root->formula()  << "] ";
-    for(auto it = _roll.begin(); it != _roll.end(); it++)
-        ss << '\n' << it->report << " = " << it->result;
+    for(auto it = _roll.begin(); it != _roll.end(); it++) {
+        ss << '\n' << it->report;
+        if(_root->multi())
+            ss << " = " << it->result;
+    }
     return ss.str();
 }
 
