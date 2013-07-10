@@ -52,6 +52,22 @@ protected:
     int _integer;
 };
 
+class ExprDiceRollNode: public RollNode {
+public:
+    typedef std::unique_ptr<ExprDiceRollNode> ptr;
+    ExprDiceRollNode(RollNode::ptr expr);
+    ExprDiceRollNode(RollNode::ptr expr, const Dice::roll_type& dice);
+    RollNode::ptr copy() const;
+    dice_roll roll();
+    std::string formula() const;
+    bool multi() const;
+    bool group() const;
+    bool leaf() const;
+protected:
+    RollNode::ptr _expr;
+    Dice::roll_type _dice;
+};
+
 class MathRollNode: public RollNode {
 public:
     typedef std::unique_ptr<MathRollNode> ptr;

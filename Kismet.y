@@ -22,7 +22,7 @@ Mara Kim
 %left COMMA
 %left ADD SUB
 %left MULT DIV
-%token R_PAREN L_PAREN
+%token R_PAREN L_PAREN R_COUNTEXPR L_COUNTEXPR
 %token <string> DIE LABEL DROP_LOW DROP_HIGH
 %token <integer> COUNT CONSTANT
 %type <integer> count constant die drop_low drop_high
@@ -30,7 +30,7 @@ Mara Kim
 %type <die_type> roll
 %type <modifier> modifier modfactor
 %type <modifier_list> modlist
-%type <roll_type> expr factor leaf modpair
+%type <roll_type> expr factor leaf modpair countexpr
 %type <directive_type> directive
 
 %%
@@ -102,25 +102,29 @@ modfactor:
 leaf:
     roll
     { $$ = DiceRollNode::ptr(new DiceRollNode($1)); }
+  | count roll
+    { ($2).times = $1;
+      $$ = DiceRollNode::ptr(new DiceRollNode($2)); }
+  | count
+    { Dice::roll_type d;
+      d.times = $1;
+      $$ = DiceRollNode::ptr(new DiceRollNode(d)); }
+  | countexpr roll
+    { $$ = ExprDiceRollNode::ptr(new ExprDiceRollNode(std::move($1),$2)); }
   | constant
     { $$ = IntRollNode::ptr(new IntRollNode($1)); }
 ;
 roll:
-    count die
-    { ($$).times = $1;
-      ($$).die = $2; }
-  | die
+    die
     { ($$).die = $1; }
-  | count
-    { ($$).times = $1; }
-  | drop_low
-    { ($$).low = $1; }
-  | drop_high
-    { ($$).high = $1; }
   | roll drop_low
     { ($$).low = $2; }
   | roll drop_high
     { ($$).high = $2; }
+;
+countexpr:
+    R_COUNTEXPR expr L_COUNTEXPR
+    { $$ = std::move($2); }
 ;
 count:
     COUNT

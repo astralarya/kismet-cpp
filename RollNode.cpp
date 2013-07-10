@@ -16,12 +16,6 @@ _dice(dice) {
 
 DiceRollNode::DiceRollNode():
 _dice() {
-    Dice::roll_type roll;
-    roll.times = 1;
-    roll.die = Options::Instance()->get(DEFAULT_DIE);
-    roll.high = 0;
-    roll.low = 0;
-    _dice = roll;
 }
 
 RollNode::ptr DiceRollNode::copy() const {
@@ -96,6 +90,63 @@ bool IntRollNode::group() const {
 
 bool IntRollNode::leaf() const {
     return true;
+}
+
+ExprDiceRollNode::ExprDiceRollNode(RollNode::ptr expr):
+_expr(std::move(expr)),
+_dice() {
+}
+
+ExprDiceRollNode::ExprDiceRollNode(RollNode::ptr expr, const Dice::roll_type& dice):
+_expr(std::move(expr)),
+_dice(dice) {
+}
+
+RollNode::ptr ExprDiceRollNode::copy() const {
+    return RollNode::ptr(new ExprDiceRollNode(_expr->copy(),_dice));
+}
+
+RollNode::dice_roll ExprDiceRollNode::roll() {
+    RollNode::dice_roll value;
+    auto expr = _expr->roll();
+    for(auto expr_it = expr.begin(); expr_it != expr.end(); expr_it++) {
+        _dice.times = expr_it->result;
+        DiceRollNode d(_dice);
+        auto roll = d.roll();
+        std::stringstream ss;
+        for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) {
+            ss << '{' << d.formula() << "} " << roll_it->report;
+            value.push_back(Dice::result_type(ss.str(),roll_it->result));
+            ss.str("");
+        }
+    }
+    return value;
+}
+
+std::string ExprDiceRollNode::formula() const {
+    std::stringstream ss;
+    ss << '{' << _expr->formula() << '}' << 'd' << _dice.die;
+    if(_dice.high > 0)
+        ss << "-H";
+    if(_dice.high > 1)
+        ss << _dice.high;
+    if(_dice.low > 0)
+        ss << "-L";
+    if(_dice.low > 1)
+        ss << _dice.low;
+    return ss.str();
+}
+
+bool ExprDiceRollNode::multi() const {
+    return true;
+}
+
+bool ExprDiceRollNode::group() const {
+    return false;
+}
+
+bool ExprDiceRollNode::leaf() const {
+    return false;
 }
 
 MathRollNode::MathRollNode(RollNode::ptr first, RollNode::ptr second, const mode op):

@@ -37,6 +37,8 @@ MULTILINECOMMENT_E      "*/"
 
 [dD](%|[[:digit:]]+)    return KismetParser::DIE;
 [[:digit:]]+/[dD]       return KismetParser::COUNT;
+"{"/([^}]+"}"[dD])      return KismetParser::R_COUNTEXPR;
+"}"/[dD]                return KismetParser::L_COUNTEXPR;
 -[lL][[:digit:]]*       return KismetParser::DROP_LOW;
 -[hH][[:digit:]]*       return KismetParser::DROP_HIGH;
 [[:digit:]]+            return KismetParser::CONSTANT;
