@@ -35,7 +35,7 @@ RollNode::dice_roll DiceRollNode::roll() {
     return value;
 }
 
-std::string DiceRollNode::formula() {
+std::string DiceRollNode::formula() const {
     std::stringstream ss;
     if(_dice.times > 1)
         ss << _dice.times ;
@@ -51,12 +51,16 @@ std::string DiceRollNode::formula() {
     return ss.str();
 }
 
-bool DiceRollNode::multi() {
+bool DiceRollNode::multi() const {
     return _dice.times > 1 || _dice.high > 0 || _dice.low > 0;
 }
 
-bool DiceRollNode::group() {
+bool DiceRollNode::group() const {
     return false;
+}
+
+bool DiceRollNode::leaf() const {
+    return true;
 }
 
 IntRollNode::IntRollNode(int i):
@@ -76,18 +80,22 @@ RollNode::dice_roll IntRollNode::roll() {
     return value;
 }
 
-std::string IntRollNode::formula() {
+std::string IntRollNode::formula() const {
     std::stringstream ss;
     ss << _integer;
     return ss.str();
 }
 
-bool IntRollNode::multi() {
+bool IntRollNode::multi() const {
     return false;
 }
 
-bool IntRollNode::group() {
+bool IntRollNode::group() const {
     return false;
+}
+
+bool IntRollNode::leaf() const {
+    return true;
 }
 
 MathRollNode::MathRollNode(RollNode::ptr first, RollNode::ptr second, const mode op):
@@ -106,6 +114,19 @@ _operator(op) {
 
 RollNode::ptr MathRollNode::copy() const {
     return RollNode::ptr(new MathRollNode(_first->copy(),_second->copy(),_operator));
+}
+
+char MathRollNode::opchar(mode m) {
+    switch(m) {
+    case ADD:
+        return '+';
+    case SUB:
+        return '-';
+    case MULT:
+        return '*';
+    case DIV:
+        return '/';
+    }
 }
 
 RollNode::dice_roll MathRollNode::roll() {
@@ -151,7 +172,7 @@ RollNode::dice_roll MathRollNode::roll() {
     return value;
 }
 
-std::string MathRollNode::formula() {
+std::string MathRollNode::formula() const {
     std::stringstream ss;
     // construct roll
     if(_first->group())
@@ -168,32 +189,16 @@ std::string MathRollNode::formula() {
     return ss.str();
 }
 
-bool MathRollNode::multi() {
-    return true;
+bool MathRollNode::multi() const {
+    return false;
 }
 
-bool MathRollNode::group() {
-    switch(_operator) {
-    case ADD:
-    case SUB:
-        return true;
-    case MULT:
-    case DIV:
-        return false;
-    }
+bool MathRollNode::group() const {
+    return false;
 }
 
-char MathRollNode::opchar(mode m) {
-    switch(m) {
-    case ADD:
-        return '+';
-    case SUB:
-        return '-';
-    case MULT:
-        return '*';
-    case DIV:
-        return '/';
-    }
+bool MathRollNode::leaf() const {
+    return false;
 }
 
 ParensRollNode::ParensRollNode(RollNode::ptr node):
@@ -209,16 +214,20 @@ RollNode::dice_roll ParensRollNode::roll() {
     return _node->roll();
 }
 
-std::string ParensRollNode::formula() {
+std::string ParensRollNode::formula() const {
     return _node->formula();
 }
 
-bool ParensRollNode::multi() {
+bool ParensRollNode::multi() const {
     return true;
 }
 
-bool ParensRollNode::group() {
+bool ParensRollNode::group() const {
     return true;
+}
+
+bool ParensRollNode::leaf() const {
+    return false;
 }
 
 MultiRollNode::MultiRollNode(RollNode::ptr node, MultiRollNode::mod_list mod_list):
@@ -254,7 +263,7 @@ RollNode::dice_roll MultiRollNode::roll() {
     return value;
 }
 
-std::string MultiRollNode::formula() {
+std::string MultiRollNode::formula() const {
     std::stringstream ss;
     if(_node->group())
         ss << '(';
@@ -277,10 +286,14 @@ std::string MultiRollNode::formula() {
     return ss.str();
 }
 
-bool MultiRollNode::multi() {
+bool MultiRollNode::multi() const {
     return true;
 }
 
-bool MultiRollNode::group() {
+bool MultiRollNode::group() const {
     return _mod_list.size() > 1;
+}
+
+bool MultiRollNode::leaf() const {
+    return false;
 }

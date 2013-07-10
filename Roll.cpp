@@ -43,7 +43,7 @@ std::string Roll::print() const {
         if(_roll.size()>1)
             ss << '\n';
         ss << it->report;
-        if(_root->multi())
+        if(_root->multi() || !_root->leaf())
             ss << " = " << it->result;
     }
     return ss.str();

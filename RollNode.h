@@ -16,9 +16,10 @@ public:
     typedef std::unique_ptr<RollNode> ptr;
     virtual ptr copy() const = 0;
     virtual dice_roll roll() = 0;
-    virtual std::string formula() = 0;
-    virtual bool multi() = 0;
-    virtual bool group() = 0;
+    virtual std::string formula() const = 0;
+    virtual bool multi() const = 0;
+    virtual bool group() const = 0;
+    virtual bool leaf() const = 0;
     virtual ~RollNode();
 };
 
@@ -29,9 +30,10 @@ public:
     DiceRollNode(const Dice::roll_type& dice);
     RollNode::ptr copy() const;
     dice_roll roll();
-    std::string formula();
-    bool multi();
-    bool group();
+    std::string formula() const;
+    bool multi() const;
+    bool group() const;
+    bool leaf() const;
 protected:
     Dice::roll_type _dice;
 };
@@ -42,9 +44,10 @@ public:
     IntRollNode(int i);
     RollNode::ptr copy() const;
     dice_roll roll();
-    std::string formula();
-    bool multi();
-    bool group();
+    std::string formula() const;
+    bool multi() const;
+    bool group() const;
+    bool leaf() const;
 protected:
     int _integer;
 };
@@ -56,11 +59,12 @@ public:
     MathRollNode(RollNode::ptr first, RollNode::ptr second, const mode op);
     MathRollNode(RollNode* first, RollNode* second, const mode op);
     RollNode::ptr copy() const;
-    dice_roll roll();
-    std::string formula();
-    bool multi();
-    bool group();
     static char opchar(mode m);
+    dice_roll roll();
+    std::string formula() const;
+    bool multi() const;
+    bool group() const;
+    bool leaf() const;
 protected:
     RollNode::ptr _first, _second;
     mode _operator;
@@ -72,9 +76,10 @@ public:
     ParensRollNode(RollNode::ptr node);
     RollNode::ptr copy() const;
     dice_roll roll();
-    std::string formula();
-    bool multi();
-    bool group();
+    std::string formula() const;
+    bool multi() const;
+    bool group() const;
+    bool leaf() const;
 protected:
     RollNode::ptr _node;
 };
@@ -97,9 +102,10 @@ public:
     RollNode::ptr copy() const;
     static mod_list copy_modlist(const mod_list& m);
     dice_roll roll();
-    std::string formula();
-    bool multi();
-    bool group();
+    std::string formula() const;
+    bool multi() const;
+    bool group() const;
+    bool leaf() const;
 protected:
     RollNode::ptr _node;
 
