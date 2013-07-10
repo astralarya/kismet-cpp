@@ -92,6 +92,10 @@ modifier:
   | SUB expr
     { ($$).argument = std::move($2);
       ($$).op = MathRollNode::SUB; }
+  | modifier ADD expr
+    { ($$).setArgument(RollNode::ptr(new MathRollNode(std::move(($$).argument),std::move($3),MathRollNode::ADD))); }
+  | modifier SUB expr
+    { ($$).setArgument(RollNode::ptr(new MathRollNode(std::move(($$).argument),std::move($3),MathRollNode::SUB))); }
 ;
 leaf:
     roll
