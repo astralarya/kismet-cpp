@@ -61,6 +61,11 @@ expr:
     { $$ = std::move($1); }
   | modpair
     { $$ = std::move($1); }
+  | expr COMMA expr
+    { ListRollNode* node = (new ListRollNode());
+      node->insert(std::move($1));
+      node->insert(std::move($3));
+      $$ = RollNode::ptr(node); }
 ;
 factor:
     leaf

@@ -129,4 +129,23 @@ protected:
     node_list _node_list;
 };
 
+class ListRollNode: public RollNode {
+public:
+    typedef std::unique_ptr<ListRollNode> ptr;
+    typedef std::vector<RollNode::ptr> node_list;
+
+    ListRollNode();
+    ListRollNode(node_list list);
+    RollNode::ptr copy() const;
+    static node_list copy_nodelist(const node_list& m);
+    void insert(RollNode::ptr node);
+    dice_roll roll();
+    std::string formula() const;
+    bool multi() const;
+    bool group() const;
+    bool leaf() const;
+protected:
+    node_list _node_list;
+};
+
 #endif // ROLLNODE_H

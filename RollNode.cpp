@@ -348,3 +348,68 @@ bool MultiRollNode::group() const {
 bool MultiRollNode::leaf() const {
     return false;
 }
+
+ListRollNode::ListRollNode():
+_node_list()
+{
+}
+
+ListRollNode::ListRollNode(ListRollNode::node_list list):
+_node_list(std::move(list))
+{
+}
+
+RollNode::ptr ListRollNode::copy() const {
+    return RollNode::ptr(new ListRollNode(ListRollNode::copy_nodelist(_node_list)));
+}
+
+ListRollNode::node_list ListRollNode::copy_nodelist(const node_list& inlist) {
+    node_list list;
+    for(auto it = inlist.begin(); it != inlist.end(); it++) {
+        list.emplace_back((*it)->copy());
+    }
+    return list;
+}
+
+void ListRollNode::insert(RollNode::ptr node) {
+    _node_list.emplace_back(std::move(node));
+}
+
+RollNode::dice_roll ListRollNode::roll() {
+    RollNode::dice_roll value,
+                        itr_value;
+    for(auto it = _node_list.begin(); it != _node_list.end(); it++) {
+        itr_value = (*it)->roll();
+        value.insert(value.end(),itr_value.begin(),itr_value.end());
+    }
+    return value;
+}
+
+std::string ListRollNode::formula() const {
+    std::stringstream ss;
+    bool first = true;
+    for(auto it = _node_list.begin(); it != _node_list.end(); it++) {
+        if(first)
+            first = false;
+        else
+            ss << ',';
+        if((*it)->group())
+            ss << '(';
+        ss << (*it)->formula();
+        if((*it)->group())
+            ss << ')';
+    }
+    return ss.str();
+}
+
+bool ListRollNode::multi() const {
+    return _node_list.size() > 1;
+}
+
+bool ListRollNode::group() const {
+    return _node_list.size() > 1;
+}
+
+bool ListRollNode::leaf() const {
+    return false;
+}
