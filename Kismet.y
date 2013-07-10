@@ -90,8 +90,6 @@ modifier:
   | SUB expr
     { ($$).argument = std::move($2);
       ($$).op = MathRollNode::SUB; }
-  | modifier modifier
-    { ($$).setArgument(RollNode::ptr(new MathRollNode(std::move(($$).argument),std::move(($2).argument),($2).op))); }
 ;
 modfactor:
     MULT factor
