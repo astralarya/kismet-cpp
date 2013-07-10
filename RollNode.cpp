@@ -164,7 +164,7 @@ std::string MathRollNode::formula() {
         ss << '(';
     ss << _second->formula();
     if(_second->group())
-        ss << '(';
+        ss << ')';
     return ss.str();
 }
 
