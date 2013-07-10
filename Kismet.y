@@ -28,7 +28,7 @@ Mara Kim
 %type <integer> count constant die drop_low drop_high
 %type <string> label
 %type <die_type> roll
-%type <modifier> modifier
+%type <modifier> modifier modfactor
 %type <modifier_list> modlist
 %type <roll_type> expr factor leaf modpair
 %type <directive_type> directive
@@ -65,10 +65,6 @@ expr:
 factor:
     leaf
     { $$ = std::move($1); }
-  | factor MULT factor
-    { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::MULT)); }
-  | factor DIV factor
-    { $$ = MathRollNode::ptr(new MathRollNode(std::move($1),std::move($3),MathRollNode::DIV)); }
   | R_PAREN expr L_PAREN
     { $$ = ParensRollNode::ptr(new ParensRollNode(std::move($2))); }
 ;
@@ -86,16 +82,24 @@ modlist:
       $$ = MultiRollNode::copy_modlist($1); }
 ;
 modifier:
-    ADD expr
+    modfactor
+    { $$ = std::move($1); }
+  | ADD expr
     { ($$).setArgument(std::move($2));
       ($$).op = MathRollNode::ADD; }
   | SUB expr
     { ($$).argument = std::move($2);
       ($$).op = MathRollNode::SUB; }
-  | modifier ADD expr
-    { ($$).setArgument(RollNode::ptr(new MathRollNode(std::move(($$).argument),std::move($3),MathRollNode::ADD))); }
-  | modifier SUB expr
-    { ($$).setArgument(RollNode::ptr(new MathRollNode(std::move(($$).argument),std::move($3),MathRollNode::SUB))); }
+  | modifier modifier
+    { ($$).setArgument(RollNode::ptr(new MathRollNode(std::move(($$).argument),std::move(($2).argument),($2).op))); }
+;
+modfactor:
+    MULT factor
+    { ($$).setArgument(std::move($2));
+      ($$).op = MathRollNode::MULT; }
+  | DIV factor
+    { ($$).setArgument(std::move($2));
+      ($$).op = MathRollNode::DIV; }
 ;
 leaf:
     roll
