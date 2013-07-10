@@ -287,7 +287,7 @@ std::string MultiRollNode::formula() const {
 }
 
 bool MultiRollNode::multi() const {
-    return true;
+    return _mod_list.size() > 1;
 }
 
 bool MultiRollNode::group() const {
