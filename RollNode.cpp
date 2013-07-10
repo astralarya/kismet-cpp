@@ -169,7 +169,6 @@ std::string MathRollNode::formula() {
 }
 
 bool MathRollNode::multi() {
-    return false;
     switch(_operator) {
     case ADD:
     case SUB:
@@ -279,7 +278,7 @@ std::string MultiRollNode::formula() {
 }
 
 bool MultiRollNode::multi() {
-    return false;
+    return true;
 }
 
 bool MultiRollNode::group() {
