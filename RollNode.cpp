@@ -132,6 +132,11 @@ _enum(enumerator),
 _dice(std::move(dice)) {
 }
 
+EnumRollNode::EnumRollNode(const EnumRollNode::enum_roll& roll):
+_enum(roll.enumerator),
+_dice(new DiceRollNode(roll.die)) {
+}
+
 EnumRollNode::ptr EnumRollNode::copy() const {
     return EnumRollNode::ptr(new EnumRollNode(_enum,DiceRollNode::ptr(_dice->copy_typed())));
 }
@@ -156,6 +161,7 @@ EnumRollNode::dice_roll EnumRollNode::roll() {
         }
         if(roll_it->drops.size())
             ss << " ~ ";
+        first = true;
         for(auto it = roll_it->drops.begin(); it != roll_it->drops.end(); it++) {
             if(first)
                 first = false;
@@ -172,6 +178,16 @@ EnumRollNode::dice_roll EnumRollNode::roll() {
 
 std::string EnumRollNode::formula() const {
     std::stringstream ss;
+    ss << _dice->formula_count() << '{';
+    bool first = true;
+    for(auto it = _enum.begin(); it != _enum.end(); it++) {
+        if(first)
+            first = false;
+        else
+            ss << ',';
+        ss << (*it);
+    }
+    ss << '}' << _dice->formula_mod();
     return ss.str();
 }
 
@@ -184,6 +200,44 @@ bool EnumRollNode::group() const {
 }
 
 bool EnumRollNode::leaf() const {
+    return true;
+}
+
+CastEnumRollNode::CastEnumRollNode():
+_enum_node() {
+    // ctor
+}
+
+CastEnumRollNode::CastEnumRollNode(EnumRollNode::ptr enum_node):
+_enum_node(std::move(enum_node)) {
+    // ctor
+}
+
+RollNode::ptr CastEnumRollNode::copy() const {
+    return RollNode::ptr(new CastEnumRollNode(_enum_node->copy()));
+}
+
+RollNode::dice_roll CastEnumRollNode::roll() {
+    RollNode::dice_roll value;
+    auto roll = _enum_node->roll();
+    for(auto it = roll.begin(); it != roll.end(); it++)
+        value.push_back(Dice::result_type(it->report,0));
+    return value;
+}
+
+std::string CastEnumRollNode::formula() const {
+    return _enum_node->formula();
+}
+
+bool CastEnumRollNode::multi() const {
+    return false;
+}
+
+bool CastEnumRollNode::group() const {
+    return false;
+}
+
+bool CastEnumRollNode::leaf() const {
     return true;
 }
 

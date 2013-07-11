@@ -72,11 +72,16 @@ public:
         report(report),
         result(result) {}
     };
+    struct enum_roll {
+        enum_type enumerator;
+        Dice::roll_type die;
+    };
     typedef std::vector<result_set> dice_roll;
     typedef std::unique_ptr<EnumRollNode> ptr;
 
     EnumRollNode();
     EnumRollNode(const enum_type& enumerator, DiceRollNode::ptr dice);
+    EnumRollNode(const enum_roll& roll);
     EnumRollNode::ptr copy() const;
     dice_roll roll();
     std::string formula() const;
@@ -86,6 +91,22 @@ public:
 protected:
     enum_type _enum;
     DiceRollNode::ptr _dice;
+};
+
+class CastEnumRollNode: public RollNode {
+public:
+    typedef std::unique_ptr<CastEnumRollNode> ptr;
+
+    CastEnumRollNode();
+    CastEnumRollNode(EnumRollNode::ptr enum_node);
+    RollNode::ptr copy() const;
+    dice_roll roll();
+    std::string formula() const;
+    bool multi() const;
+    bool group() const;
+    bool leaf() const;
+protected:
+    EnumRollNode::ptr _enum_node;
 };
 
 class ExprDiceRollNode: public RollNode {
