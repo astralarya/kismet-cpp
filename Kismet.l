@@ -4,11 +4,12 @@ Flexc++ input file
 Mara Kim
 */
 
+%interactive
+%input-interface = "KismetInput.h"
+%input-implementation = "KismetInput.cppi"
 %namespace = KISMET
 %class-name = KismetScanner
 %lex-source = "KismetScanner.cc"
-%interactive
-
 
 LINECOMMENT_S           "//"
 MULTILINECOMMENT_S      "/*"
