@@ -64,6 +64,7 @@ protected:
 class EnumRollNode {
 public:
     typedef std::vector<std::string> enum_type;
+    typedef std::map<std::string,unsigned int> result_map;
     struct result_set {
         std::string report;
         enum_type result;

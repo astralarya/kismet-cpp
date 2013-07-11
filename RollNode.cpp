@@ -149,6 +149,7 @@ EnumRollNode::dice_roll EnumRollNode::roll() {
         bool first = true;
         std::stringstream ss;
         enum_type result;
+        result_map map;
         if(_dice->multi())
             ss << '{';
         for(auto it = roll_it->rolls.begin(); it != roll_it->rolls.end(); it++) {
@@ -156,8 +157,14 @@ EnumRollNode::dice_roll EnumRollNode::roll() {
                 first = false;
             else
                 ss << ',';
-            ss << _enum[(*it)-1];
-            result.push_back(_enum[(*it)-1]);
+            std::string val = _enum[(*it)-1];
+            ss << val;
+            result.push_back(val);
+            auto find = map.find(val);
+            if(find != map.end())
+                find->second++;
+            else
+                map[val] = 1;
         }
         if(roll_it->drops.size())
             ss << " ~ ";
@@ -171,6 +178,20 @@ EnumRollNode::dice_roll EnumRollNode::roll() {
         }
         if(_dice->multi())
             ss << '}';
+        if(map.size() < roll_it->rolls.size()) {
+            ss << " = {";
+            bool first = true;
+            for(auto it = map.begin(); it != map.end(); it++) {
+                if(first)
+                    first = false;
+                else
+                    ss << ',';
+                ss << it->first;
+                if(it->second > 1)
+                    ss << '*' << it->second;
+            }
+            ss << '}';
+        }
         value.push_back(EnumRollNode::result_set(ss.str(),result));
     }
     return value;
