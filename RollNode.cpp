@@ -14,12 +14,25 @@ _dice(dice) {
     // ctor
 }
 
+DiceRollNode::DiceRollNode(const unsigned int die):
+_dice(die) {
+    // ctor
+}
+
 DiceRollNode::DiceRollNode():
 _dice() {
 }
 
+Dice::roll_type& DiceRollNode::getDie() {
+    return _dice;
+}
+
 RollNode::ptr DiceRollNode::copy() const {
     return RollNode::ptr(new DiceRollNode(_dice));
+}
+
+DiceRollNode::ptr DiceRollNode::copy_typed() const {
+    return DiceRollNode::ptr(new DiceRollNode(_dice));
 }
 
 RollNode::dice_roll DiceRollNode::roll() {
@@ -29,11 +42,28 @@ RollNode::dice_roll DiceRollNode::roll() {
     return value;
 }
 
+RollNode::roll_set DiceRollNode::roll_set() {
+    RollNode::roll_set value;
+    value.push_back(Dice::roll_set(_dice));
+    return value;
+}
+
 std::string DiceRollNode::formula() const {
+    std::stringstream ss;
+    ss << formula_count() << _dice.die << formula_mod();
+    return ss.str();
+}
+
+std::string DiceRollNode::formula_count() const {
     std::stringstream ss;
     if(_dice.times > 1)
         ss << _dice.times ;
-    ss << 'd' << _dice.die;
+    ss << 'd';
+    return ss.str();
+}
+
+std::string DiceRollNode::formula_mod() const {
+    std::stringstream ss;
     if(_dice.high > 0)
         ss << "-H";
     if(_dice.high > 1)
@@ -89,6 +119,71 @@ bool IntRollNode::group() const {
 }
 
 bool IntRollNode::leaf() const {
+    return true;
+}
+
+EnumRollNode::EnumRollNode():
+_enum(),
+_dice(new DiceRollNode(0)) {
+}
+
+EnumRollNode::EnumRollNode(const enum_type& enumerator, DiceRollNode::ptr dice):
+_enum(enumerator),
+_dice(std::move(dice)) {
+}
+
+EnumRollNode::ptr EnumRollNode::copy() const {
+    return EnumRollNode::ptr(new EnumRollNode(_enum,DiceRollNode::ptr(_dice->copy_typed())));
+}
+
+EnumRollNode::dice_roll EnumRollNode::roll() {
+    EnumRollNode::dice_roll value;
+    _dice->getDie().die = _enum.size();
+    auto roll = _dice->roll_set();
+    for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) { 
+        bool first = true;
+        std::stringstream ss;
+        enum_type result;
+        if(_dice->multi())
+            ss << '{';
+        for(auto it = roll_it->rolls.begin(); it != roll_it->rolls.end(); it++) {
+            if(first)
+                first = false;
+            else
+                ss << ',';
+            ss << _enum[(*it)-1];
+            result.push_back(_enum[(*it)-1]);
+        }
+        if(roll_it->drops.size())
+            ss << " ~ ";
+        for(auto it = roll_it->drops.begin(); it != roll_it->drops.end(); it++) {
+            if(first)
+                first = false;
+            else
+                ss << ',';
+            ss << _enum[(*it)-1];
+        }
+        if(_dice->multi())
+            ss << '}';
+        value.push_back(EnumRollNode::result_set(ss.str(),result));
+    }
+    return value;
+}
+
+std::string EnumRollNode::formula() const {
+    std::stringstream ss;
+    return ss.str();
+}
+
+bool EnumRollNode::multi() const {
+    return _dice->multi();
+}
+
+bool EnumRollNode::group() const {
+    return false;
+}
+
+bool EnumRollNode::leaf() const {
     return true;
 }
 

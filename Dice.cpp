@@ -53,14 +53,41 @@ Dice::result_type Dice::roll_str(const unsigned int die, const unsigned int time
 }
 
 Dice::result_type Dice::roll_str(const Dice::roll_type& roll) {
-    // prepare random generator
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
-    std::uniform_int_distribution<unsigned int> distribution(1,roll.die);
+    // roll dice
+    result_set value = Dice::roll_set(roll);
+    // construct report
+    int result = 0;
+    std::stringstream report;
+    bool first = true;
+    for(auto it = value.rolls.begin(); it != value.rolls.end(); it++) {
+            if(first)
+                first = false;
+            else
+                report << " + ";
+            result += (*it);
+            report << (*it);
+    }
+    first = true;
+    for(auto it = value.drops.begin(); it != value.drops.end(); it++) {
+            if(first) {
+                report << " ~ ";
+                first = false;
+            } else
+                report << ' ';
+            report << (*it);
+    }
+    Dice::result_type r;
+    r.result = result;
+    r.report = report.str();
+    return r;
+}
+
+Dice::result_set Dice::roll_set(const Dice::roll_type& roll) {
     // roll dice, recording order
     std::multimap<unsigned int,unsigned int> rolls, // map of results to roll order
                                              keep, // map of roll order to results
                                              drop; // map of roll order to results
+    std::uniform_int_distribution<unsigned int> distribution(1,roll.die);
     for(int i = 0; i < roll.times; i++)
         rolls.insert(std::pair<unsigned int, unsigned int>(distribution(Dice::Generator()),i));
     // perform drops
@@ -73,29 +100,13 @@ Dice::result_type Dice::roll_str(const Dice::roll_type& roll) {
             drop.insert(std::pair<unsigned int, unsigned int>(it->second,it->first));
         pos++;
     }
-    // construct report
-    int result = 0;
-    std::stringstream report;
-    bool first = true;
+    // construct sets
+    Dice::result_set r;
     for(auto it = keep.begin(); it != keep.end(); it++) {
-            if(first)
-                first = false;
-            else
-                report << " + ";
-            result += it->second;
-            report << it->second;
+            r.rolls.push_back(it->second);
     }
-    first = true;
     for(auto it = drop.begin(); it != drop.end(); it++) {
-            if(first) {
-                report << " ~ ";
-                first = false;
-            } else
-                report << ' ';
-            report << it->second;
+            r.drops.push_back(it->second);
     }
-    Dice::result_type r;
-    r.result = result;
-    r.report = report.str();
     return r;
 }

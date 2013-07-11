@@ -13,6 +13,7 @@
 class RollNode {
 public:
     typedef std::vector<Dice::result_type> dice_roll;
+    typedef std::vector<Dice::result_set> roll_set;
     typedef std::unique_ptr<RollNode> ptr;
     virtual ptr copy() const = 0;
     virtual dice_roll roll() = 0;
@@ -23,14 +24,22 @@ public:
     virtual ~RollNode();
 };
 
+
+
 class DiceRollNode: public RollNode {
 public:
     typedef std::unique_ptr<DiceRollNode> ptr;
     DiceRollNode();
     DiceRollNode(const Dice::roll_type& dice);
+    DiceRollNode(const unsigned int die);
+    Dice::roll_type& getDie();
     RollNode::ptr copy() const;
+    DiceRollNode::ptr copy_typed() const;
     dice_roll roll();
+    roll_set roll_set();
     std::string formula() const;
+    std::string formula_count() const;
+    std::string formula_mod() const;
     bool multi() const;
     bool group() const;
     bool leaf() const;
@@ -50,6 +59,33 @@ public:
     bool leaf() const;
 protected:
     int _integer;
+};
+
+class EnumRollNode {
+public:
+    typedef std::vector<std::string> enum_type;
+    struct result_set {
+        std::string report;
+        enum_type result;
+
+        result_set(std::string report,enum_type result):
+        report(report),
+        result(result) {}
+    };
+    typedef std::vector<result_set> dice_roll;
+    typedef std::unique_ptr<EnumRollNode> ptr;
+
+    EnumRollNode();
+    EnumRollNode(const enum_type& enumerator, DiceRollNode::ptr dice);
+    EnumRollNode::ptr copy() const;
+    dice_roll roll();
+    std::string formula() const;
+    bool multi() const;
+    bool group() const;
+    bool leaf() const;
+protected:
+    enum_type _enum;
+    DiceRollNode::ptr _dice;
 };
 
 class ExprDiceRollNode: public RollNode {
