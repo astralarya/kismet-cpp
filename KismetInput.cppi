@@ -56,7 +56,7 @@ size_t KismetScannerBase::Input::next() {
 
 std::string KismetScannerBase::Input::prompt() {
     std::stringstream ss;
-    ss << d_lineNr << '>';
+    ss << d_lineNr << "> ";
     return ss.str();
 }
 
