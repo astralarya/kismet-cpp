@@ -39,6 +39,7 @@ public:
     roll_set roll_set();
     std::string formula() const;
     std::string formula_count() const;
+    std::string formula_die() const;
     std::string formula_mod() const;
     bool multi() const;
     bool group() const;
@@ -123,6 +124,7 @@ public:
     bool leaf() const;
 protected:
     RollNode::ptr _expr;
+    std::string _report;
     Dice::roll_type _dice;
 };
 

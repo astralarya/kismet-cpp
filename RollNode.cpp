@@ -62,6 +62,12 @@ std::string DiceRollNode::formula_count() const {
     return ss.str();
 }
 
+std::string DiceRollNode::formula_die() const {
+    std::stringstream ss;
+    ss << _dice.die;
+    return ss.str();
+}
+
 std::string DiceRollNode::formula_mod() const {
     std::stringstream ss;
     if(_dice.high > 0)
@@ -285,7 +291,10 @@ RollNode::dice_roll ExprDiceRollNode::roll() {
         auto roll = d.roll();
         std::stringstream ss;
         for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) {
-            ss << '{' << d.formula() << "} " << roll_it->report;
+            ss << '{';
+            if(_expr->multi())
+                ss << '{' << expr_it->report << " = " << expr_it->result << '}';
+            ss << 'd' << d.formula_die() << d.formula_mod() << "} " << roll_it->report;
             value.push_back(Dice::result_type(ss.str(),roll_it->result));
             ss.str("");
         }
