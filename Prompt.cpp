@@ -21,19 +21,20 @@ std::string Prompt::readline(const std::string& prompt) {
         Prompt::_initialize();
     std::string line;
     char* read = ::readline(prompt.c_str());
-    if(read && *read) {
-        // if we have a line save to history
+    if(read) {
         auto last_command = ::history_get(::history_length);
-        line = read;
-        if(last_command) {
-            if(line != std::string(last_command->line))
+        if(*read) {
+            // if we have a line save to history
+            line = read;
+            if(last_command) {
+                if(line != std::string(last_command->line))
+                    ::add_history(read);
+            } else
                 ::add_history(read);
-        } else
-            ::add_history(read);
-    }
-    if(read)
+        } else if(last_command)
+            line = last_command->line;
         free(read);
-    else
+    } else
         _eof = true;
     return line;
 }
