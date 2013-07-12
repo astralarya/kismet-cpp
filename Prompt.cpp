@@ -5,14 +5,23 @@
 
 #include "Prompt.h"
 #include <stdio.h>
+#include <string>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <iostream>
 
 bool Prompt::_ready = false;
 bool Prompt::_eof = false;
 
+int readline_exit(int count, int key) {
+    rl_replace_line("exit",0);
+    rl_done = 1;
+    return 0;
+}
+
 void Prompt::_initialize() {
     ::rl_bind_key('\t',rl_insert);
+    ::rl_bind_key('',readline_exit);
     _ready = true;
 }
 
