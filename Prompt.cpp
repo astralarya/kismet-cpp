@@ -15,6 +15,7 @@ void Prompt::_initialize() {
     _ready = true;
 }
 
+#include <iostream>
 std::string Prompt::readline(const std::string& prompt) {
     if(!_ready)
         Prompt::_initialize();
@@ -22,8 +23,13 @@ std::string Prompt::readline(const std::string& prompt) {
     char* read = ::readline(prompt.c_str());
     if(read && *read) {
         // if we have a line save to history
-        ::add_history(read);
+        auto last_command = ::history_get(::history_length);
         line = read;
+        if(last_command) {
+            if(line != std::string(last_command->line))
+                ::add_history(read);
+        } else
+            ::add_history(read);
     }
     if(read)
         free(read);
