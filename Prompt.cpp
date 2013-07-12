@@ -4,6 +4,7 @@
 // An object that manages an interactive prompt
 
 #include "Prompt.h"
+#include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -15,7 +16,6 @@ void Prompt::_initialize() {
     _ready = true;
 }
 
-#include <iostream>
 std::string Prompt::readline(const std::string& prompt) {
     if(!_ready)
         Prompt::_initialize();
