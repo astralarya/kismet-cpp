@@ -16,9 +16,8 @@ public:
     void reRead(std::string const &str, size_t fmIdx); // push back str from idx 'fmIdx'
     void close(); // delete dynamically allocated
 private:
-    void _initialize_readline();        // Initialize the GNU readline library
     size_t next();                      // obtain the next character
-    std::string prompt();               // get the prompt string
+    std::string prompt();           // get the prompt string
     std::deque<unsigned char> d_deque;  // pending input chars
     std::istream *d_in;                 // ptr for easy streamswitching
     size_t d_lineNr;                    // line count

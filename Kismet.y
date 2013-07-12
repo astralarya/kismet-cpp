@@ -43,7 +43,6 @@ Mara Kim
 input:
     /* empty */
   | input line
-    { if(Options::Instance()->get(INTERACTIVE)) std::cout << '>' << std::flush; }
   | error NEWLINE
 ;
 line:

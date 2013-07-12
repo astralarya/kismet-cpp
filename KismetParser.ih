@@ -12,8 +12,6 @@ namespace KISMET
 inline void KismetParser::error(char const *msg)
 {
     std::cerr << msg << '\n';
-    if(Options::Instance()->get(INTERACTIVE))
-        std::cout << '>' << std::flush;
 }
 
 // $insert lex

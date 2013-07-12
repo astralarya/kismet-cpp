@@ -7,27 +7,19 @@
 KismetScannerBase::Input::Input():
 d_in(0),
 d_lineNr(1) {
-    _initialize_readline();
 }
 
 KismetScannerBase::Input::Input(std::istream *iStream, size_t lineNr):
 d_in(iStream),
 d_lineNr(lineNr) {
-    _initialize_readline();
 }
 
-void KismetScannerBase::Input::_initialize_readline() {
-    if(!Options::Instance()->get(INTERACTIVE))
-        return;
-    rl_bind_key('\t',rl_insert);
-}
 
 size_t KismetScannerBase::Input::get() {
     // get the next input char
     switch (size_t ch = next()) {
     case '\n':
         ++d_lineNr;
-    // FALLING THROUGH
     default:
         return ch;
     }
@@ -40,20 +32,17 @@ size_t KismetScannerBase::Input::next() {
         // deque empty: next char fm d_in
         if(d_in == 0)
             return AT_EOF;
-        // readline prompt if INTERACTIVE else get char from stream
         if(Options::Instance()->get(INTERACTIVE)) {
-            char* read = readline(prompt().c_str());
-            if(read && *read) {
-                // if we have a line save to history and push onto deque
-                add_history(read);
-                std::string line(read);
-                reRead(read,0);
-            }
-            if(read)
-                free(read);
-            else
+            if(::Prompt::eof())
                 return AT_EOF;
+            // readline prompt
+            std::string read(::Prompt::readline(prompt()));
+            for(auto it = read.begin(); it != read.end(); it++)
+                d_deque.push_back(*it);
+            d_deque.push_back('\n');
+            d_deque.push_back(AT_EOF);
         } else {
+            // get char from stream
             ch = d_in->get();
             return *d_in ? ch : AT_EOF;
         }
