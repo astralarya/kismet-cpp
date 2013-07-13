@@ -11,7 +11,7 @@ namespace KISMET
 
 inline void KismetParser::error(char const *msg)
 {
-    std::cerr << msg << '\n';
+    //std::cerr << msg << '\n';
 }
 
 // $insert lex
