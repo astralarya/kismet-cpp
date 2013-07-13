@@ -277,6 +277,8 @@ RollNode::dice_roll ExprDiceRollNode::roll() {
             ss << '{';
             if(_expr->multi())
                 ss << '{' << expr_it->report << " = " << expr_it->result << '}';
+            else if(expr_it->result > 1)
+                ss << expr_it->result;
             ss << 'd' << _dice->formula_die() << _dice->formula_mod() << "} " << roll_it->report;
             value.push_back(Dice::result_type(ss.str(),roll_it->result));
             ss.str("");
@@ -292,7 +294,7 @@ std::string ExprDiceRollNode::formula() const {
 }
 
 bool ExprDiceRollNode::multi() const {
-    return true;
+    return _dice->multi();
 }
 
 bool ExprDiceRollNode::group() const {
