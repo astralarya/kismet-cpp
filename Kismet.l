@@ -44,7 +44,7 @@ MULTILINECOMMENT_E      "*/"
 [dD]"{"                 return KismetParser::R_DIEEXPR;
 "}"                     return KismetParser::L_DIEEXPR;
 
-[kK][iI][sS][mM][eE][tT]    Personality::respond_name(); redo(1); more();
+[kK][iI][sS][mM][eE][tT].*    Personality::respond_name(); accept(1); more();
 [[:alpha:]]+            return KismetParser::ENUM;
 -[lL][[:digit:]]*       return KismetParser::DROP_LOW;
 -[hH][[:digit:]]*       return KismetParser::DROP_HIGH;
