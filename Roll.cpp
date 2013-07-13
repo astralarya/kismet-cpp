@@ -42,7 +42,7 @@ std::string Roll::print(bool full) const {
     for(auto it = _roll.begin(); it != _roll.end(); it++) {
         if(_roll.size()>1)
             ss << '\n';
-        if(it->report.size() < 1000 || full)
+        if(!Options::Instance()->get(INTERACTIVE) || it->report.size() < 1000 || full)
             ss << it->report;
         else
             abbrev = true;
