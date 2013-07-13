@@ -33,7 +33,7 @@ const Roll::dice_roll& Roll::result() const {
     return _roll;
 }
 
-std::string Roll::print() const {
+std::string Roll::print(bool full) const {
     std::stringstream ss;
     if(_label.size())
         ss << _label << ':';
@@ -42,10 +42,14 @@ std::string Roll::print() const {
     for(auto it = _roll.begin(); it != _roll.end(); it++) {
         if(_roll.size()>1)
             ss << '\n';
-        ss << it->report;
+        if(it->report.size() < 1000 || full)
+            ss << it->report;
+        else
+            abbrev = true;
         if(_root->multi() || !_root->leaf())
             ss << " = " << it->result;
     }
+    ss << "\nTAB for report";
     return ss.str();
 }
 

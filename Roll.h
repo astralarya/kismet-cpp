@@ -19,7 +19,7 @@ public:
     dice_roll roll();
     void setRoll(RollNode::ptr& root);
     const dice_roll& result() const;
-    std::string print() const;
+    std::string print(bool full = false) const;
     void setLabel(std::string& label);
     const std::string& label() const;
 
