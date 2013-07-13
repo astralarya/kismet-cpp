@@ -143,12 +143,12 @@ _enum(roll.enumerator),
 _dice(new DiceRollNode(roll.die)) {
 }
 
-EnumRollNode::ptr EnumRollNode::copy() const {
-    return EnumRollNode::ptr(new EnumRollNode(_enum,DiceRollNode::ptr(_dice->copy_typed())));
+RollNode::ptr EnumRollNode::copy() const {
+    return RollNode::ptr(new EnumRollNode(_enum,DiceRollNode::ptr(_dice->copy_typed())));
 }
 
-EnumRollNode::dice_roll EnumRollNode::roll() {
-    EnumRollNode::dice_roll value;
+EnumRollNode::dice_roll_set EnumRollNode::roll_set() {
+    EnumRollNode::dice_roll_set value;
     _dice->getDie().die = _enum.size();
     auto roll = _dice->roll_set();
     for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) { 
@@ -203,6 +203,14 @@ EnumRollNode::dice_roll EnumRollNode::roll() {
     return value;
 }
 
+RollNode::dice_roll EnumRollNode::roll() {
+    RollNode::dice_roll value;
+    dice_roll_set roll = roll_set();
+    for(auto it = roll.begin(); it != roll.end(); it++)
+        value.push_back(Dice::result_type(it->report,0));
+    return value;
+}
+
 std::string EnumRollNode::formula() const {
     std::stringstream ss;
     ss << _dice->formula_count() << '{';
@@ -219,7 +227,7 @@ std::string EnumRollNode::formula() const {
 }
 
 bool EnumRollNode::multi() const {
-    return _dice->multi();
+    return false;
 }
 
 bool EnumRollNode::group() const {
@@ -227,44 +235,6 @@ bool EnumRollNode::group() const {
 }
 
 bool EnumRollNode::leaf() const {
-    return true;
-}
-
-CastEnumRollNode::CastEnumRollNode():
-_enum_node() {
-    // ctor
-}
-
-CastEnumRollNode::CastEnumRollNode(EnumRollNode::ptr enum_node):
-_enum_node(std::move(enum_node)) {
-    // ctor
-}
-
-RollNode::ptr CastEnumRollNode::copy() const {
-    return RollNode::ptr(new CastEnumRollNode(_enum_node->copy()));
-}
-
-RollNode::dice_roll CastEnumRollNode::roll() {
-    RollNode::dice_roll value;
-    auto roll = _enum_node->roll();
-    for(auto it = roll.begin(); it != roll.end(); it++)
-        value.push_back(Dice::result_type(it->report,0));
-    return value;
-}
-
-std::string CastEnumRollNode::formula() const {
-    return _enum_node->formula();
-}
-
-bool CastEnumRollNode::multi() const {
-    return false;
-}
-
-bool CastEnumRollNode::group() const {
-    return false;
-}
-
-bool CastEnumRollNode::leaf() const {
     return true;
 }
 

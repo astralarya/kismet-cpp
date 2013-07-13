@@ -74,10 +74,10 @@ expr:
 ;
 enumexpr:
     enumroll
-    { $$ = RollNode::ptr(new CastEnumRollNode(EnumRollNode::ptr(new EnumRollNode($1)))); }
+    { $$ = RollNode::ptr(new EnumRollNode($1)); }
   | count enumroll
     { ($2).die.times = $1;
-      $$ = RollNode::ptr(new CastEnumRollNode(EnumRollNode::ptr(new EnumRollNode($2)))); }
+      $$ = RollNode::ptr(new EnumRollNode($2)); }
 ;
 factor:
     leaf
