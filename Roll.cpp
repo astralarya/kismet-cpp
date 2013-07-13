@@ -47,7 +47,9 @@ std::string Roll::print(bool full) const {
             ss << it->report;
         else
             abbrev = true;
-        if(_root->multi())
+        std::stringstream resultt;
+        resultt << it->result;
+        if(resultt.str() != it->report)
             ss << " = " << it->result;
     }
     if(abbrev) {

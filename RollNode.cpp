@@ -93,10 +93,6 @@ bool DiceRollNode::group() const {
     return false;
 }
 
-bool DiceRollNode::leaf() const {
-    return true;
-}
-
 IntRollNode::IntRollNode(int i):
 _integer(i) {
     // ctor
@@ -126,10 +122,6 @@ bool IntRollNode::multi() const {
 
 bool IntRollNode::group() const {
     return false;
-}
-
-bool IntRollNode::leaf() const {
-    return true;
 }
 
 EnumRollNode::EnumRollNode():
@@ -248,10 +240,6 @@ bool EnumRollNode::group() const {
     return false;
 }
 
-bool EnumRollNode::leaf() const {
-    return true;
-}
-
 ExprDiceRollNode::ExprDiceRollNode(RollNode::ptr expr):
 _expr(std::move(expr)),
 _dice() {
@@ -298,10 +286,6 @@ bool ExprDiceRollNode::multi() const {
 }
 
 bool ExprDiceRollNode::group() const {
-    return false;
-}
-
-bool ExprDiceRollNode::leaf() const {
     return false;
 }
 
@@ -397,14 +381,10 @@ std::string MathRollNode::formula() const {
 }
 
 bool MathRollNode::multi() const {
-    return false;
+    return true;
 }
 
 bool MathRollNode::group() const {
-    return false;
-}
-
-bool MathRollNode::leaf() const {
     return false;
 }
 
@@ -431,10 +411,6 @@ bool ParensRollNode::multi() const {
 
 bool ParensRollNode::group() const {
     return true;
-}
-
-bool ParensRollNode::leaf() const {
-    return false;
 }
 
 MultiRollNode::MultiRollNode(RollNode::ptr node, MultiRollNode::mod_list mod_list):
@@ -501,10 +477,6 @@ bool MultiRollNode::group() const {
     return _mod_list.size() > 1;
 }
 
-bool MultiRollNode::leaf() const {
-    return false;
-}
-
 ListRollNode::ListRollNode():
 _node_list()
 {
@@ -566,6 +538,3 @@ bool ListRollNode::group() const {
     return _node_list.size() > 1;
 }
 
-bool ListRollNode::leaf() const {
-    return false;
-}

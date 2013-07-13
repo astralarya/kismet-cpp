@@ -20,11 +20,8 @@ public:
     virtual std::string formula() const = 0;
     virtual bool multi() const = 0;
     virtual bool group() const = 0;
-    virtual bool leaf() const = 0;
     virtual ~RollNode();
 };
-
-
 
 class DiceRollNode: public RollNode {
 public:
@@ -44,7 +41,6 @@ public:
     std::string formula_mod() const;
     virtual bool multi() const;
     virtual bool group() const;
-    virtual bool leaf() const;
 protected:
     Dice::roll_type _dice;
 };
@@ -58,7 +54,6 @@ public:
     std::string formula() const;
     bool multi() const;
     bool group() const;
-    bool leaf() const;
 protected:
     int _integer;
 };
@@ -94,7 +89,6 @@ public:
     std::string formula_mod() const;
     bool multi() const;
     bool group() const;
-    bool leaf() const;
 protected:
     enum_type _enum;
 };
@@ -109,7 +103,6 @@ public:
     std::string formula() const;
     bool multi() const;
     bool group() const;
-    bool leaf() const;
 protected:
     RollNode::ptr _expr;
     DiceRollNode::ptr _dice;
@@ -127,7 +120,6 @@ public:
     std::string formula() const;
     bool multi() const;
     bool group() const;
-    bool leaf() const;
 protected:
     RollNode::ptr _first, _second;
     mode _operator;
@@ -142,7 +134,6 @@ public:
     std::string formula() const;
     bool multi() const;
     bool group() const;
-    bool leaf() const;
 protected:
     RollNode::ptr _node;
 };
@@ -168,7 +159,6 @@ public:
     std::string formula() const;
     bool multi() const;
     bool group() const;
-    bool leaf() const;
 protected:
     RollNode::ptr _node;
 
@@ -190,7 +180,6 @@ public:
     std::string formula() const;
     bool multi() const;
     bool group() const;
-    bool leaf() const;
 protected:
     node_list _node_list;
 };
