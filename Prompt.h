@@ -5,6 +5,7 @@
 
 #include "Options.h"
 #include <string>
+#include <iostream>
 
 class Prompt {
 public:

@@ -35,6 +35,7 @@ const Roll::dice_roll& Roll::result() const {
 
 std::string Roll::print(bool full) const {
     std::stringstream ss;
+    bool abbrev = false;
     if(_label.size())
         ss << _label << ':';
     if(_root)
@@ -46,10 +47,13 @@ std::string Roll::print(bool full) const {
             ss << it->report;
         else
             abbrev = true;
-        if(_root->multi() || !_root->leaf())
+        if(_root->multi())
             ss << " = " << it->result;
     }
-    ss << "\nTAB for report";
+    if(abbrev) {
+        Options::Instance()->set(FULL_REPORT,print(true));
+        ss << "\nTAB for report";
+    }
     return ss.str();
 }
 

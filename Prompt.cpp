@@ -5,10 +5,8 @@
 
 #include "Prompt.h"
 #include <stdio.h>
-#include <string>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include <iostream>
 
 bool Prompt::_ready = false;
 bool Prompt::_eof = false;
@@ -19,8 +17,17 @@ int readline_exit(int count, int key) {
     return 0;
 }
 
+int readline_report(int count, int key) {
+    std::string report(Options::Instance()->get(FULL_REPORT));
+    if(report.size()) {
+        std::cout << '\n' << report << '\n';
+        std::cout << rl_prompt << std::flush;
+        Options::Instance()->set(FULL_REPORT,"");
+    }
+}
+
 void Prompt::_initialize() {
-    ::rl_bind_key('\t',rl_insert);
+    ::rl_bind_key('\t',readline_report);
     ::rl_bind_key('',readline_exit);
     _ready = true;
 }
