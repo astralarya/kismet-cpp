@@ -33,17 +33,18 @@ public:
     DiceRollNode(const Dice::roll_type& dice);
     DiceRollNode(const unsigned int die);
     Dice::roll_type& getDie();
-    RollNode::ptr copy() const;
-    DiceRollNode::ptr copy_typed() const;
-    dice_roll roll();
+    const Dice::roll_type& getDie() const;
+    virtual RollNode::ptr copy() const;
+    virtual DiceRollNode::ptr copy_typed() const;
+    virtual dice_roll roll();
     roll_set roll_set();
-    std::string formula() const;
+    virtual std::string formula() const;
     std::string formula_count() const;
-    std::string formula_die() const;
+    virtual std::string formula_die() const;
     std::string formula_mod() const;
-    bool multi() const;
-    bool group() const;
-    bool leaf() const;
+    virtual bool multi() const;
+    virtual bool group() const;
+    virtual bool leaf() const;
 protected:
     Dice::roll_type _dice;
 };
@@ -62,7 +63,7 @@ protected:
     int _integer;
 };
 
-class EnumRollNode {
+class EnumRollNode: public DiceRollNode {
 public:
     typedef std::vector<std::string> enum_type;
     typedef std::map<std::string,unsigned int> result_map;
@@ -78,44 +79,31 @@ public:
         enum_type enumerator;
         Dice::roll_type die;
     };
-    typedef std::vector<result_set> dice_roll;
-    typedef std::unique_ptr<EnumRollNode> ptr;
+    typedef std::vector<result_set> dice_roll_set;
 
     EnumRollNode();
-    EnumRollNode(const enum_type& enumerator, DiceRollNode::ptr dice);
+    EnumRollNode(const enum_type& enumerator, Dice::roll_type die);
     EnumRollNode(const enum_roll& roll);
-    EnumRollNode::ptr copy() const;
+    RollNode::ptr copy() const;
+    DiceRollNode::ptr copy_typed() const;
     dice_roll roll();
+    dice_roll_set roll_enum();
     std::string formula() const;
+    std::string formula_count() const;
+    std::string formula_die() const;
+    std::string formula_mod() const;
     bool multi() const;
     bool group() const;
     bool leaf() const;
 protected:
     enum_type _enum;
-    DiceRollNode::ptr _dice;
-};
-
-class CastEnumRollNode: public RollNode {
-public:
-    typedef std::unique_ptr<CastEnumRollNode> ptr;
-
-    CastEnumRollNode();
-    CastEnumRollNode(EnumRollNode::ptr enum_node);
-    RollNode::ptr copy() const;
-    dice_roll roll();
-    std::string formula() const;
-    bool multi() const;
-    bool group() const;
-    bool leaf() const;
-protected:
-    EnumRollNode::ptr _enum_node;
 };
 
 class ExprDiceRollNode: public RollNode {
 public:
     typedef std::unique_ptr<ExprDiceRollNode> ptr;
     ExprDiceRollNode(RollNode::ptr expr);
-    ExprDiceRollNode(RollNode::ptr expr, const Dice::roll_type& dice);
+    ExprDiceRollNode(RollNode::ptr expr, DiceRollNode::ptr dice);
     RollNode::ptr copy() const;
     dice_roll roll();
     std::string formula() const;
@@ -124,8 +112,7 @@ public:
     bool leaf() const;
 protected:
     RollNode::ptr _expr;
-    std::string _report;
-    Dice::roll_type _dice;
+    DiceRollNode::ptr _dice;
 };
 
 class MathRollNode: public RollNode {

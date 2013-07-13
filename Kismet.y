@@ -34,7 +34,7 @@ Mara Kim
 %type <enum_roll> enumroll
 %type <modifier> modifier modfactor
 %type <modifier_list> modlist
-%type <roll_type> expr factor leaf modpair countexpr enumexpr
+%type <roll_type> expr factor leaf modpair countexpr
 %type <directive_type> directive
 
 %%
@@ -62,8 +62,6 @@ directive:
 expr:
     factor
     { $$ = std::move($1); }
-  | enumexpr
-    { $$ = std::move($1); }
   | modpair
     { $$ = std::move($1); }
   | expr COMMA expr
@@ -71,13 +69,6 @@ expr:
       node->insert(std::move($1));
       node->insert(std::move($3));
       $$ = RollNode::ptr(node); }
-;
-enumexpr:
-    enumroll
-    { $$ = RollNode::ptr(new EnumRollNode($1)); }
-  | count enumroll
-    { ($2).die.times = $1;
-      $$ = RollNode::ptr(new EnumRollNode($2)); }
 ;
 factor:
     leaf
@@ -129,7 +120,14 @@ leaf:
       d.times = $1;
       $$ = DiceRollNode::ptr(new DiceRollNode(d)); }
   | countexpr roll
-    { $$ = ExprDiceRollNode::ptr(new ExprDiceRollNode(std::move($1),$2)); }
+    { $$ = ExprDiceRollNode::ptr(new ExprDiceRollNode(std::move($1),DiceRollNode::ptr(new DiceRollNode($2)))); }
+  | enumroll
+    { $$ = DiceRollNode::ptr(new EnumRollNode($1)); }
+  | count enumroll
+    { ($2).die.times = $1;
+      $$ = DiceRollNode::ptr(new EnumRollNode($2)); }
+  | countexpr enumroll
+    { $$ = ExprDiceRollNode::ptr(new ExprDiceRollNode(std::move($1),DiceRollNode::ptr(new EnumRollNode($2)))); }
 ;
 roll:
     die

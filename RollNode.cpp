@@ -27,6 +27,10 @@ Dice::roll_type& DiceRollNode::getDie() {
     return _dice;
 }
 
+const Dice::roll_type& DiceRollNode::getDie() const {
+    return _dice;
+}
+
 RollNode::ptr DiceRollNode::copy() const {
     return RollNode::ptr(new DiceRollNode(_dice));
 }
@@ -129,34 +133,38 @@ bool IntRollNode::leaf() const {
 }
 
 EnumRollNode::EnumRollNode():
-_enum(),
-_dice(new DiceRollNode(0)) {
+DiceRollNode(),
+_enum() {
 }
 
-EnumRollNode::EnumRollNode(const enum_type& enumerator, DiceRollNode::ptr dice):
-_enum(enumerator),
-_dice(std::move(dice)) {
+EnumRollNode::EnumRollNode(const enum_type& enumerator, Dice::roll_type die):
+DiceRollNode(die),
+_enum(enumerator) {
 }
 
 EnumRollNode::EnumRollNode(const EnumRollNode::enum_roll& roll):
-_enum(roll.enumerator),
-_dice(new DiceRollNode(roll.die)) {
+DiceRollNode(roll.die),
+_enum(roll.enumerator) {
 }
 
 RollNode::ptr EnumRollNode::copy() const {
-    return RollNode::ptr(new EnumRollNode(_enum,DiceRollNode::ptr(_dice->copy_typed())));
+    return RollNode::ptr(new EnumRollNode(_enum,getDie()));
 }
 
-EnumRollNode::dice_roll_set EnumRollNode::roll_set() {
+DiceRollNode::ptr EnumRollNode::copy_typed() const {
+    return DiceRollNode::ptr(new EnumRollNode(_enum,getDie()));
+}
+
+EnumRollNode::dice_roll_set EnumRollNode::roll_enum() {
     EnumRollNode::dice_roll_set value;
-    _dice->getDie().die = _enum.size();
-    auto roll = _dice->roll_set();
+    getDie().die = _enum.size();
+    auto roll = roll_set();
     for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) { 
         bool first = true;
         std::stringstream ss;
         enum_type result;
         result_map map;
-        if(_dice->multi())
+        if(DiceRollNode::multi())
             ss << '{';
         for(auto it = roll_it->rolls.begin(); it != roll_it->rolls.end(); it++) {
             if(first)
@@ -182,7 +190,7 @@ EnumRollNode::dice_roll_set EnumRollNode::roll_set() {
                 ss << ',';
             ss << _enum[(*it)-1];
         }
-        if(_dice->multi())
+        if(DiceRollNode::multi())
             ss << '}';
         if(map.size() < roll_it->rolls.size()) {
             ss << " = {";
@@ -205,7 +213,7 @@ EnumRollNode::dice_roll_set EnumRollNode::roll_set() {
 
 RollNode::dice_roll EnumRollNode::roll() {
     RollNode::dice_roll value;
-    dice_roll_set roll = roll_set();
+    dice_roll_set roll = roll_enum();
     for(auto it = roll.begin(); it != roll.end(); it++)
         value.push_back(Dice::result_type(it->report,0));
     return value;
@@ -213,7 +221,13 @@ RollNode::dice_roll EnumRollNode::roll() {
 
 std::string EnumRollNode::formula() const {
     std::stringstream ss;
-    ss << _dice->formula_count() << '{';
+    ss << DiceRollNode::formula_count() << formula_die() << DiceRollNode::formula_mod();
+    return ss.str();
+}
+
+std::string EnumRollNode::formula_die() const {
+    std::stringstream ss;
+    ss << '{';
     bool first = true;
     for(auto it = _enum.begin(); it != _enum.end(); it++) {
         if(first)
@@ -222,7 +236,7 @@ std::string EnumRollNode::formula() const {
             ss << ',';
         ss << (*it);
     }
-    ss << '}' << _dice->formula_mod();
+    ss << '}';
     return ss.str();
 }
 
@@ -243,28 +257,27 @@ _expr(std::move(expr)),
 _dice() {
 }
 
-ExprDiceRollNode::ExprDiceRollNode(RollNode::ptr expr, const Dice::roll_type& dice):
+ExprDiceRollNode::ExprDiceRollNode(RollNode::ptr expr, DiceRollNode::ptr dice):
 _expr(std::move(expr)),
-_dice(dice) {
+_dice(std::move(dice)) {
 }
 
 RollNode::ptr ExprDiceRollNode::copy() const {
-    return RollNode::ptr(new ExprDiceRollNode(_expr->copy(),_dice));
+    return RollNode::ptr(new ExprDiceRollNode(_expr->copy(),_dice->copy_typed()));
 }
 
 RollNode::dice_roll ExprDiceRollNode::roll() {
     RollNode::dice_roll value;
     auto expr = _expr->roll();
     for(auto expr_it = expr.begin(); expr_it != expr.end(); expr_it++) {
-        _dice.times = expr_it->result;
-        DiceRollNode d(_dice);
-        auto roll = d.roll();
+        _dice->getDie().times = expr_it->result;
+        auto roll = _dice->roll();
         std::stringstream ss;
         for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) {
             ss << '{';
             if(_expr->multi())
                 ss << '{' << expr_it->report << " = " << expr_it->result << '}';
-            ss << 'd' << d.formula_die() << d.formula_mod() << "} " << roll_it->report;
+            ss << 'd' << _dice->formula_die() << _dice->formula_mod() << "} " << roll_it->report;
             value.push_back(Dice::result_type(ss.str(),roll_it->result));
             ss.str("");
         }
@@ -274,15 +287,7 @@ RollNode::dice_roll ExprDiceRollNode::roll() {
 
 std::string ExprDiceRollNode::formula() const {
     std::stringstream ss;
-    ss << '{' << _expr->formula() << '}' << 'd' << _dice.die;
-    if(_dice.high > 0)
-        ss << "-H";
-    if(_dice.high > 1)
-        ss << _dice.high;
-    if(_dice.low > 0)
-        ss << "-L";
-    if(_dice.low > 1)
-        ss << _dice.low;
+    ss << '{' << _expr->formula() << '}' << 'd' << _dice->formula_die() << _dice->formula_mod();
     return ss.str();
 }
 
