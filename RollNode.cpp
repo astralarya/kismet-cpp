@@ -238,9 +238,10 @@ RollNode::result_list ExprDiceRollNode::roll() {
             auto roll = _dice->roll();
             std::stringstream ss;
             for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) {
-                ss << '{';
-                if(expr_result_it->value > 1)
-                    ss << expr_it->value_str();
+                ss << '{' << expr_it->report;
+                std::string value_str(expr_it->value_str());
+                if(value_str != expr_it->report)
+                    ss << " = " << value_str;
                 ss << 'd' << _dice->formula_die() << _dice->formula_mod() << "} " << roll_it->report;
                 result.value = roll_it->value;
                 result.report = ss.str();
