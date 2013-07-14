@@ -10,7 +10,7 @@
 
 class Roll {
 public:
-    typedef RollNode::dice_roll dice_roll;
+    typedef RollNode::result_list dice_roll;
 
     Roll();
     Roll(RollNode::ptr& root, std::string& label = Options::Instance()->get(DEFAULT_LABEL));

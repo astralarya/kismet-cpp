@@ -6,13 +6,12 @@
 #include "Roll.h"
 
 Roll::Roll():
-_root(),
-_label() {
+_root(), _label(), _roll() {
     // ctor
 }
 
 Roll::Roll(RollNode::ptr& root, std::string& label):
-_root(std::move(root)), _label(label) {
+_root(std::move(root)), _label(label), _roll() {
     // ctor
 }
 
@@ -43,14 +42,15 @@ std::string Roll::print(bool full) const {
     for(auto it = _roll.begin(); it != _roll.end(); it++) {
         if(_roll.size()>1)
             ss << '\n';
+        // Build report
         if(!Options::Instance()->get(INTERACTIVE) || it->report.size() < 1000 || full)
             ss << it->report;
         else
             abbrev = true;
-        std::stringstream resultt;
-        resultt << it->result;
-        if(resultt.str() != it->report)
-            ss << " = " << it->result;
+        // Build result
+        std::string result = it->value_str();
+        if(result != it->report)
+            ss << " = " << result;
     }
     if(abbrev) {
         Options::Instance()->set(FULL_REPORT,print(true));
