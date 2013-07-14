@@ -298,6 +298,18 @@ char MathRollNode::opchar(mode m) {
         return '/';
     }
 }
+double MathRollNode::opcalc(double first, double second, mode m) {
+    switch(m) {
+    case ADD:
+        return first + second;
+    case SUB:
+        return first - second;
+    case MULT:
+        return first * second;
+    case DIV:
+        return first / second;
+    }
+}
 
 RollNode::result_list MathRollNode::roll() {
     RollNode::result_list value;
@@ -305,8 +317,10 @@ RollNode::result_list MathRollNode::roll() {
     // roll dice
     auto first = _first->roll();
     for(auto first_it = first.begin(); first_it != first.end(); first_it++) {
+        for(auto first_result_it = first_it->value.begin(); first_result_it != first_it->value.end(); first_result_it++) {
             auto second = _second->roll();
             for(auto second_it = second.begin(); second_it != second.end(); second_it++) {
+                atom_list list;
                 for(auto second_result_it = second_it->value.begin(); second_result_it != second_it->value.end(); second_result_it++) {
                     // construct report
                     ss.str("");
@@ -322,23 +336,9 @@ RollNode::result_list MathRollNode::roll() {
                     if(_second->multi())
                         ss << ')';
                     // set result
-                    double result;
-                    switch(_operator) {
-                    case ADD:
-                        result = first_it->result + second_it->result;
-                        break;
-                    case SUB:
-                        result = first_it->result - second_it->result;
-                        break;
-                    case MULT:
-                        result = first_it->result * second_it->result;
-                        break;
-                    case DIV:
-                        result = first_it->result / second_it->result;
-                        break;
-                    }
+                    list.push_back(atom(MathRollNode::opcalc(first_result_it->value,second_result_it->value,_operator)));
                 }
-                value.push_back(Dice::result_type(ss.str(),result));
+                value.push_back(result(ss.str(),list));
             }
         }
     }
@@ -379,7 +379,7 @@ RollNode::ptr ParensRollNode::copy() const {
     return RollNode::ptr(new ParensRollNode(_node->copy()));
 }
 
-RollNode::dice_roll ParensRollNode::roll() {
+RollNode::result_list ParensRollNode::roll() {
     return _node->roll();
 }
 
@@ -418,9 +418,9 @@ MultiRollNode::mod_list MultiRollNode::copy_modlist(const mod_list& inlist) {
     return list;
 }
 
-RollNode::dice_roll MultiRollNode::roll() {
-    RollNode::dice_roll value,
-                        itr_value;
+RollNode::result_list MultiRollNode::roll() {
+    RollNode::result_list value,
+                          itr_value;
     for(auto it = _node_list.begin(); it != _node_list.end(); it++) {
         itr_value = (*it)->roll();
         value.insert(value.end(),itr_value.begin(),itr_value.end());
@@ -485,9 +485,9 @@ void ListRollNode::insert(RollNode::ptr node) {
     _node_list.emplace_back(std::move(node));
 }
 
-RollNode::dice_roll ListRollNode::roll() {
-    RollNode::dice_roll value,
-                        itr_value;
+RollNode::result_list ListRollNode::roll() {
+    RollNode::result_list value,
+                          itr_value;
     for(auto it = _node_list.begin(); it != _node_list.end(); it++) {
         itr_value = (*it)->roll();
         value.insert(value.end(),itr_value.begin(),itr_value.end());

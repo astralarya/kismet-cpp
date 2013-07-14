@@ -159,6 +159,7 @@ public:
     MathRollNode(RollNode* first, RollNode* second, const mode op);
     RollNode::ptr copy() const;
     static char opchar(mode m);
+    static double opcalc(double first, double second, mode m);
     result_list roll();
     std::string formula() const;
     bool multi() const;
