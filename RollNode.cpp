@@ -39,16 +39,10 @@ DiceRollNode::ptr DiceRollNode::copy_typed() const {
     return DiceRollNode::ptr(new DiceRollNode(_dice));
 }
 
-RollNode::dice_roll DiceRollNode::roll() {
-    RollNode::dice_roll value;
+RollNode::result_list DiceRollNode::roll() {
+    result_list value;
     auto roll = Dice::roll_str(_dice);
-    value.push_back(Dice::result_type(roll.report,roll.result));
-    return value;
-}
-
-RollNode::roll_set DiceRollNode::roll_set() {
-    RollNode::roll_set value;
-    value.push_back(Dice::roll_set(_dice));
+    value.push_back(result(roll.report,roll.result));
     return value;
 }
 
@@ -93,34 +87,45 @@ bool DiceRollNode::group() const {
     return false;
 }
 
-IntRollNode::IntRollNode(int i):
-_integer(i) {
+ConstRollNode::ConstRollNode(double value):
+_atom(value) {
     // ctor
 }
 
-RollNode::ptr IntRollNode::copy() const {
-    return RollNode::ptr(new IntRollNode(_integer));
+ConstRollNode::ConstRollNode(std::string name):
+_atom(name) {
+    // ctor
 }
 
-RollNode::dice_roll IntRollNode::roll() {
-    RollNode::dice_roll value;
-    std::stringstream ss;
-    ss << _integer;
-    value.push_back(Dice::result_type(ss.str(),_integer));
+ConstRollNode::ConstRollNode(std::string name,double value):
+_atom(name,value) {
+    // ctor
+}
+
+ConstRollNode::ConstRollNode(const atom& atom):
+_atom(atom) {
+    // ctor
+}
+
+RollNode::ptr ConstRollNode::copy() const {
+    return RollNode::ptr(new ConstRollNode(_atom));
+}
+
+RollNode::result_list ConstRollNode::roll() {
+    result_list value;
+    value.push_back(result(_atom.name,_atom));
     return value;
 }
 
-std::string IntRollNode::formula() const {
-    std::stringstream ss;
-    ss << _integer;
-    return ss.str();
+std::string ConstRollNode::formula() const {
+    return _atom.name;
 }
 
-bool IntRollNode::multi() const {
+bool ConstRollNode::multi() const {
     return false;
 }
 
-bool IntRollNode::group() const {
+bool ConstRollNode::group() const {
     return false;
 }
 
@@ -129,7 +134,7 @@ DiceRollNode(),
 _enum() {
 }
 
-EnumRollNode::EnumRollNode(const enum_type& enumerator, Dice::roll_type die):
+EnumRollNode::EnumRollNode(const atom_list& enumerator, const Dice::roll_type& die):
 DiceRollNode(die),
 _enum(enumerator) {
 }
@@ -147,30 +152,23 @@ DiceRollNode::ptr EnumRollNode::copy_typed() const {
     return DiceRollNode::ptr(new EnumRollNode(_enum,getDie()));
 }
 
-EnumRollNode::dice_roll_set EnumRollNode::roll_enum() {
-    EnumRollNode::dice_roll_set value;
+RollNode::result_list EnumRollNode::roll() {
+    result_list value;
     getDie().die = _enum.size();
     auto roll = roll_set();
     for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) { 
         bool first = true;
         std::stringstream ss;
-        enum_type result;
-        result_map map;
-        if(DiceRollNode::multi())
+        atom_list list;
+	if(DiceRollNode::multi())
             ss << '{';
         for(auto it = roll_it->rolls.begin(); it != roll_it->rolls.end(); it++) {
             if(first)
                 first = false;
             else
                 ss << ',';
-            std::string val = _enum[(*it)-1];
-            ss << val;
-            result.push_back(val);
-            auto find = map.find(val);
-            if(find != map.end())
-                find->second++;
-            else
-                map[val] = 1;
+            ss << _enum[(*it)-1].name;
+            list.push_back(_enum[(*it)-1]);
         }
         if(roll_it->drops.size())
             ss << " ~ ";
@@ -180,34 +178,12 @@ EnumRollNode::dice_roll_set EnumRollNode::roll_enum() {
                 first = false;
             else
                 ss << ',';
-            ss << _enum[(*it)-1];
+            ss << _enum[(*it)-1].name;
         }
         if(DiceRollNode::multi())
             ss << '}';
-        if(map.size() < roll_it->rolls.size()) {
-            ss << " = {";
-            bool first = true;
-            for(auto it = map.begin(); it != map.end(); it++) {
-                if(first)
-                    first = false;
-                else
-                    ss << ',';
-                ss << it->first;
-                if(it->second > 1)
-                    ss << '*' << it->second;
-            }
-            ss << '}';
+        value.push_back(result(ss.str(),list));
         }
-        value.push_back(EnumRollNode::result_set(ss.str(),result));
-    }
-    return value;
-}
-
-RollNode::dice_roll EnumRollNode::roll() {
-    RollNode::dice_roll value;
-    dice_roll_set roll = roll_enum();
-    for(auto it = roll.begin(); it != roll.end(); it++)
-        value.push_back(Dice::result_type(it->report,0));
     return value;
 }
 
@@ -226,7 +202,7 @@ std::string EnumRollNode::formula_die() const {
             first = false;
         else
             ss << ',';
-        ss << (*it);
+        ss << it->name;
     }
     ss << '}';
     return ss.str();
@@ -254,23 +230,26 @@ RollNode::ptr ExprDiceRollNode::copy() const {
     return RollNode::ptr(new ExprDiceRollNode(_expr->copy(),_dice->copy_typed()));
 }
 
-RollNode::dice_roll ExprDiceRollNode::roll() {
-    RollNode::dice_roll value;
+RollNode::result_list ExprDiceRollNode::roll() {
+    result_list value;
     auto expr = _expr->roll();
     for(auto expr_it = expr.begin(); expr_it != expr.end(); expr_it++) {
-        _dice->getDie().times = expr_it->result;
-        auto roll = _dice->roll();
-        std::stringstream ss;
-        for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) {
-            ss << '{';
-            if(_expr->multi())
-                ss << '{' << expr_it->report << " = " << expr_it->result << '}';
-            else if(expr_it->result > 1)
-                ss << expr_it->result;
-            ss << 'd' << _dice->formula_die() << _dice->formula_mod() << "} " << roll_it->report;
-            value.push_back(Dice::result_type(ss.str(),roll_it->result));
-            ss.str("");
+        result result;
+        for(auto expr_result_it = expr_it->value.begin(); expr_result_it != expr_it->value.end(); expr_result_it++) {
+            _dice->getDie().times = expr_result_it->value;
+            auto roll = _dice->roll();
+            std::stringstream ss;
+            for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) {
+                ss << '{';
+                if(expr_result_it->value > 1)
+                    ss << expr_it->value_str();
+                ss << 'd' << _dice->formula_die() << _dice->formula_mod() << "} " << roll_it->report;
+                result.value = roll_it->value;
+                result.report = ss.str();
+                ss.str("");
+            }
         }
+        value.push_back(result);
     }
     return value;
 }
@@ -320,44 +299,47 @@ char MathRollNode::opchar(mode m) {
     }
 }
 
-RollNode::dice_roll MathRollNode::roll() {
-    RollNode::dice_roll value;
+RollNode::result_list MathRollNode::roll() {
+    RollNode::result_list value;
     std::stringstream ss;
     // roll dice
     auto first = _first->roll();
     for(auto first_it = first.begin(); first_it != first.end(); first_it++) {
-        auto second = _second->roll();
-        for(auto second_it = second.begin(); second_it != second.end(); second_it++) {
-            // construct report
-            ss.str("");
-            if(_first->multi())
-                ss << '(';
-            ss << first_it->report;
-            if(_first->multi())
-                ss << ')';
-            ss << ' ' << MathRollNode::opchar(_operator) << ' ';
-            if(_second->multi())
-                ss << '(';
-            ss << second_it->report;
-            if(_second->multi())
-                ss << ')';
-            // set result
-            double result;
-            switch(_operator) {
-            case ADD:
-                result = first_it->result + second_it->result;
-                break;
-            case SUB:
-                result = first_it->result - second_it->result;
-                break;
-            case MULT:
-                result = first_it->result * second_it->result;
-                break;
-            case DIV:
-                result = first_it->result / second_it->result;
-                break;
+            auto second = _second->roll();
+            for(auto second_it = second.begin(); second_it != second.end(); second_it++) {
+                for(auto second_result_it = second_it->value.begin(); second_result_it != second_it->value.end(); second_result_it++) {
+                    // construct report
+                    ss.str("");
+                    if(_first->multi())
+                        ss << '(';
+                    ss << first_it->report;
+                    if(_first->multi())
+                        ss << ')';
+                    ss << ' ' << MathRollNode::opchar(_operator) << ' ';
+                    if(_second->multi())
+                        ss << '(';
+                    ss << second_it->report;
+                    if(_second->multi())
+                        ss << ')';
+                    // set result
+                    double result;
+                    switch(_operator) {
+                    case ADD:
+                        result = first_it->result + second_it->result;
+                        break;
+                    case SUB:
+                        result = first_it->result - second_it->result;
+                        break;
+                    case MULT:
+                        result = first_it->result * second_it->result;
+                        break;
+                    case DIV:
+                        result = first_it->result / second_it->result;
+                        break;
+                    }
+                }
+                value.push_back(Dice::result_type(ss.str(),result));
             }
-            value.push_back(Dice::result_type(ss.str(),result));
         }
     }
     return value;
