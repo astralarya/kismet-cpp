@@ -26,7 +26,7 @@ public:
         name(),value(value),null(false) {
             std::stringstream ss;
             ss << value;
-            ss >> name;
+            name = ss.str();
         }
         atom(std::string name):
         name(name),value(0),null(true) {}

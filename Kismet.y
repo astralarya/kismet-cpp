@@ -175,9 +175,9 @@ enumlist:
 ;
 constant:
     number
-    { ($$).value = $1; }
+    { $$ = RollNode::atom($1); }
   | STRING
-    { ($$).name = d_scanner.matched(); }
+    { $$ = RollNode::atom($1); }
 ;
 number:
     NUMBER
