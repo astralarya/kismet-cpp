@@ -19,7 +19,7 @@ class Dice {
 public:
     struct result_type {
         std::string report;
-        double result;
+        unsigned int result;
 
         result_type():
         report(),
