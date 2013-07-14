@@ -21,8 +21,9 @@ int readline_report(int count, int key) {
     std::string report(Options::Instance()->get(FULL_REPORT));
     if(report.size()) {
         std::cout << '\n' << report << '\n';
-        std::cout << rl_prompt << std::flush;
+        std::cout << rl_prompt;
         Options::Instance()->set(FULL_REPORT,"");
+        std::cout << rl_line_buffer << std::flush;
     }
 }
 
