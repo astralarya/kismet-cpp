@@ -22,7 +22,7 @@ Personality::response_pool Personality::_name_response
     "That's me!", "How's it going?","Love you too!!", "Love you too!","Awww, youu!", "Ahhh!!",
     "hello", "Hello?", "Hello!","What's up?", "Yes?","Yes!", "YES!", "No.", "No!", "NO!",
     "What?", "Why?", "wut", "wut?", "err", "Why??", "What??", "What!?",
-     "Sup.", "Sup?", "*sigh*", "*clap clap*", "hum", "hmmm", "uhh", "umm", "wtf", "wtf!",
+     "Sup.", "Sup?", "*sigh*", "*clap clap*", "hum", "hmmm", "uhh", "umm", "wtf", "wtf!", "wtf?"
     "xoxo", "asdf", "ababa", "42","Kismet","kismet", "KISMET", "KISMET!!", "0xkismet"
     };
 
