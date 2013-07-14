@@ -155,35 +155,33 @@ DiceRollNode::ptr EnumRollNode::copy_typed() const {
 RollNode::result_list EnumRollNode::roll() {
     result_list value;
     getDie().die = _enum.size();
-    auto roll = roll_set();
-    for(auto roll_it = roll.begin(); roll_it != roll.end(); roll_it++) { 
-        bool first = true;
-        std::stringstream ss;
-        atom_list list;
-	if(DiceRollNode::multi())
-            ss << '{';
-        for(auto it = roll_it->rolls.begin(); it != roll_it->rolls.end(); it++) {
-            if(first)
-                first = false;
-            else
-                ss << ',';
-            ss << _enum[(*it)-1].name;
-            list.push_back(_enum[(*it)-1]);
-        }
-        if(roll_it->drops.size())
-            ss << " ~ ";
-        first = true;
-        for(auto it = roll_it->drops.begin(); it != roll_it->drops.end(); it++) {
-            if(first)
-                first = false;
-            else
-                ss << ',';
-            ss << _enum[(*it)-1].name;
-        }
-        if(DiceRollNode::multi())
-            ss << '}';
-        value.push_back(result(ss.str(),list));
-        }
+    auto roll = Dice::roll_set(getDie());
+    std::stringstream ss;
+    atom_list list;
+    if(DiceRollNode::multi())
+        ss << '{';
+    bool first = true;
+    for(auto it = roll.rolls.begin(); it != roll.rolls.end(); it++) {
+        if(first)
+            first = false;
+        else
+            ss << ',';
+        ss << _enum[(*it)-1].name;
+        list.push_back(_enum[(*it)-1]);
+    }
+    if(roll.drops.size())
+        ss << " ~ ";
+    first = true;
+    for(auto it = roll.drops.begin(); it != roll.drops.end(); it++) {
+        if(first)
+            first = false;
+        else
+            ss << ',';
+        ss << _enum[(*it)-1].name;
+    }
+    if(DiceRollNode::multi())
+        ss << '}';
+    value.push_back(result(ss.str(),list));
     return value;
 }
 

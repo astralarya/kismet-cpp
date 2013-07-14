@@ -45,10 +45,10 @@ MULTILINECOMMENT_E      "*/"
 "}"                     return KismetParser::L_DIEEXPR;
 
 [kK][iI]+[sS]+[mM]+[eE]+[tT]+.*    Personality::respond_name(); accept(1); more();
-[[:alpha:]]+            return KismetParser::ENUM;
+[[:alpha:]]+            return KismetParser::STRING;
 -[lL][[:digit:]]*       return KismetParser::DROP_LOW;
 -[hH][[:digit:]]*       return KismetParser::DROP_HIGH;
-[[:digit:]]+            return KismetParser::CONSTANT;
+(([[:digit:]]+\.?[[:digit:]]*)|(\.[[:digit:]]+))([Ee][+\-]?[[:digit:]]+)?            return KismetParser::NUMBER;
 [[:alpha:]][()<>{}[:alpha:][:space:]]*:          return KismetParser::LABEL;
 
 "+"             return KismetParser::ADD;

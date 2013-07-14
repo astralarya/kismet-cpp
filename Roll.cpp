@@ -48,7 +48,7 @@ std::string Roll::print(bool full) const {
         else
             abbrev = true;
         // Build result
-        std::string result = it->value_str();
+        std::string result(it->value_str());
         if(result != it->report)
             ss << " = " << result;
     }

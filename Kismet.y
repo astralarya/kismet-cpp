@@ -12,7 +12,9 @@ Mara Kim
 
 %polymorphic string: std::string;
              integer: int;
+             float_type: double;
              die_type: Dice::roll_type;
+             atom: RollNode::atom;
              atom_list: RollNode::atom_list;
              enum_roll: EnumRollNode::enum_roll;
              modifier: MultiRollNode::modifier;
@@ -25,16 +27,19 @@ Mara Kim
 %left ADD SUB
 %left MULT DIV
 %token R_PAREN L_PAREN R_COUNTEXPR L_COUNTEXPR R_DIEEXPR L_DIEEXPR
-%token <string> DIE LABEL DROP_LOW DROP_HIGH ENUM
-%token <integer> COUNT CONSTANT
-%type <integer> count constant die drop_low drop_high
-%type <string> label enum
+%token <string> DIE LABEL DROP_LOW DROP_HIGH STRING
+%token <integer> COUNT
+%token <float_type> NUMBER
+%type <integer> count die drop_low drop_high
+%type <float_type> number
+%type <string> label
 %type <die_type> roll
+%type <atom> constant
 %type <atom_list> enumlist enumdie
 %type <enum_roll> enumroll
 %type <modifier> modifier modfactor
 %type <modifier_list> modlist
-%type <roll_type> expr factor leaf modpair countexpr
+%type <roll_type> expr factor leaf modpair countexpr rolldie enumrolldie
 %type <directive_type> directive
 
 %%
@@ -109,8 +114,14 @@ modfactor:
 ;
 leaf:
     constant
-    { $$ = IntRollNode::ptr(new IntRollNode($1)); }
-  | roll
+    { $$ = ConstRollNode::ptr(new ConstRollNode($1)); }
+  | rolldie
+    { $$ = std::move($1); }
+  | enumrolldie
+    { $$ = std::move($1); }
+;
+rolldie:
+    roll
     { $$ = DiceRollNode::ptr(new DiceRollNode($1)); }
   | count roll
     { ($2).times = $1;
@@ -121,7 +132,9 @@ leaf:
       $$ = DiceRollNode::ptr(new DiceRollNode(d)); }
   | countexpr roll
     { $$ = ExprDiceRollNode::ptr(new ExprDiceRollNode(std::move($1),DiceRollNode::ptr(new DiceRollNode($2)))); }
-  | enumroll
+;
+enumrolldie:
+    enumroll
     { $$ = DiceRollNode::ptr(new EnumRollNode($1)); }
   | count enumroll
     { ($2).die.times = $1;
@@ -154,20 +167,26 @@ enumdie:
     { $$ = $2; }
 ;
 enumlist:
-    enum
+    constant
     { ($$).push_back($1); }
-  | enumlist COMMA enum
+  | enumlist COMMA constant
     { ($1).push_back($3);
       $$ = $1; }
 ;
-count:
-    COUNT
+constant:
+    number
+    { ($$).value = $1; }
+  | STRING
+    { ($$).name = d_scanner.matched(); }
+;
+number:
+    NUMBER
     { std::stringstream ss;
       ss << d_scanner.matched();
       ss >> $$; }
 ;
-constant:
-    CONSTANT
+count:
+    COUNT
     { std::stringstream ss;
       ss << d_scanner.matched();
       ss >> $$; }
@@ -202,8 +221,4 @@ die:
 label:
     LABEL
     { $$ = d_scanner.matched().substr(0,d_scanner.matched().size()-1); }
-;
-enum:
-    ENUM
-    { $$ = d_scanner.matched(); }
 ;

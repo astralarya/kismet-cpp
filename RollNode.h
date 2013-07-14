@@ -30,6 +30,8 @@ public:
         }
         atom(std::string name):
         name(name),value(0),null(true) {}
+        atom():
+        name(),value(0),null(true) {}
     };
     typedef std::vector<atom> atom_list;
     struct result {
@@ -58,6 +60,7 @@ public:
              }
              if(value.size() > 1)
                  ss << '}';
+             return ss.str();
          }
     };
     typedef std::vector<result> result_list;
