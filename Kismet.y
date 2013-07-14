@@ -13,7 +13,7 @@ Mara Kim
 %polymorphic string: std::string;
              integer: int;
              die_type: Dice::roll_type;
-             enum_list: EnumRollNode::enum_type;
+             atom_list: RollNode::atom_list;
              enum_roll: EnumRollNode::enum_roll;
              modifier: MultiRollNode::modifier;
              modifier_list: MultiRollNode::mod_list;
@@ -30,7 +30,7 @@ Mara Kim
 %type <integer> count constant die drop_low drop_high
 %type <string> label enum
 %type <die_type> roll
-%type <enum_list> enumlist enumdie
+%type <atom_list> enumlist enumdie
 %type <enum_roll> enumroll
 %type <modifier> modifier modfactor
 %type <modifier_list> modlist
