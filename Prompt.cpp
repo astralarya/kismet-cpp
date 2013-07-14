@@ -12,7 +12,7 @@ bool Prompt::_ready = false;
 bool Prompt::_eof = false;
 
 int readline_exit(int count, int key) {
-    rl_replace_line("exit",0);
+    rl_replace_line("exit",5);
     rl_done = 1;
     return 0;
 }
