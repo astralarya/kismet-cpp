@@ -12,11 +12,59 @@
 
 class RollNode {
 public:
-    typedef std::vector<Dice::result_type> dice_roll;
-    typedef std::vector<Dice::result_set> roll_set;
+    /// TYPES ///
     typedef std::unique_ptr<RollNode> ptr;
+    struct atom {
+        // Variables
+        std::string name;
+        double value;
+        bool null;
+        // Functions
+        atom(std::string name,double value):
+        name(name),value(value),null(false) {}
+        atom(double value):
+        name(),value(value),null(false) {
+            std::stringstream ss;
+            ss << value;
+            ss >> name;
+        }
+        atom(std::string name):
+        name(name),value(0),null(true) {}
+    };
+    typedef std::vector<atom> atom_list;
+    struct result {
+         // Variables
+         std::string report;
+         atom_list value;
+         // Functions
+         result(std::string report,atom_list value):
+         report(report), value(value) {}
+         result(std::string report,atom value):
+         report(report), value(1,value) {}
+         result():
+         report(),value() {}
+
+         std::string value_str() const {
+             std::stringstream ss;
+             if(value.size() > 1)
+                 ss << '{';
+             bool first = true;
+             for(auto it = value.begin(); it != value.end(); it++) {
+                 if(first)
+                     first = false;
+                 else
+                     ss << ',';
+                 ss << it->name;
+             }
+             if(value.size() > 1)
+                 ss << '}';
+         }
+    };
+    typedef std::vector<result> result_list;
+
+    /// FUNCTIONS///
     virtual ptr copy() const = 0;
-    virtual dice_roll roll() = 0;
+    virtual result_list roll() = 0;
     virtual std::string formula() const = 0;
     virtual bool multi() const = 0;
     virtual bool group() const = 0;
@@ -26,6 +74,7 @@ public:
 class DiceRollNode: public RollNode {
 public:
     typedef std::unique_ptr<DiceRollNode> ptr;
+    typedef std::vector<Dice::result_set> result_set;
     DiceRollNode();
     DiceRollNode(const Dice::roll_type& dice);
     DiceRollNode(const unsigned int die);
@@ -33,56 +82,50 @@ public:
     const Dice::roll_type& getDie() const;
     virtual RollNode::ptr copy() const;
     virtual DiceRollNode::ptr copy_typed() const;
-    virtual dice_roll roll();
-    roll_set roll_set();
+    virtual result_list roll();
+    result_set roll_set();
+
     virtual std::string formula() const;
     std::string formula_count() const;
     virtual std::string formula_die() const;
     std::string formula_mod() const;
+
     virtual bool multi() const;
     virtual bool group() const;
 protected:
     Dice::roll_type _dice;
 };
 
-class IntRollNode: public RollNode {
+class ConstRollNode: public RollNode {
 public:
-    typedef std::unique_ptr<IntRollNode> ptr;
-    IntRollNode(int i);
+    typedef std::unique_ptr<ConstRollNode> ptr;
+    ConstRollNode(double value);
+    ConstRollNode(std::string name);
+    ConstRollNode(std::string name,double value);
+    ConstRollNode(const atom& atom);
     RollNode::ptr copy() const;
-    dice_roll roll();
+    result_list roll();
     std::string formula() const;
     bool multi() const;
     bool group() const;
 protected:
-    int _integer;
+    atom _atom;
 };
 
 class EnumRollNode: public DiceRollNode {
 public:
-    typedef std::vector<std::string> enum_type;
     typedef std::map<std::string,unsigned int> result_map;
-    struct result_set {
-        std::string report;
-        enum_type result;
-
-        result_set(std::string report,enum_type result):
-        report(report),
-        result(result) {}
-    };
     struct enum_roll {
-        enum_type enumerator;
+        atom_list enumerator;
         Dice::roll_type die;
     };
-    typedef std::vector<result_set> dice_roll_set;
 
     EnumRollNode();
-    EnumRollNode(const enum_type& enumerator, Dice::roll_type die);
+    EnumRollNode(const atom_list& enumerator, const Dice::roll_type& die);
     EnumRollNode(const enum_roll& roll);
     RollNode::ptr copy() const;
     DiceRollNode::ptr copy_typed() const;
-    dice_roll roll();
-    dice_roll_set roll_enum();
+    result_list roll();
     std::string formula() const;
     std::string formula_count() const;
     std::string formula_die() const;
@@ -90,7 +133,7 @@ public:
     bool multi() const;
     bool group() const;
 protected:
-    enum_type _enum;
+    atom_list _enum;
 };
 
 class ExprDiceRollNode: public RollNode {
@@ -99,7 +142,7 @@ public:
     ExprDiceRollNode(RollNode::ptr expr);
     ExprDiceRollNode(RollNode::ptr expr, DiceRollNode::ptr dice);
     RollNode::ptr copy() const;
-    dice_roll roll();
+    result_list roll();
     std::string formula() const;
     bool multi() const;
     bool group() const;
@@ -116,7 +159,7 @@ public:
     MathRollNode(RollNode* first, RollNode* second, const mode op);
     RollNode::ptr copy() const;
     static char opchar(mode m);
-    dice_roll roll();
+    result_list roll();
     std::string formula() const;
     bool multi() const;
     bool group() const;
@@ -130,7 +173,7 @@ public:
     typedef std::unique_ptr<ParensRollNode> ptr;
     ParensRollNode(RollNode::ptr node);
     RollNode::ptr copy() const;
-    dice_roll roll();
+    result_list roll();
     std::string formula() const;
     bool multi() const;
     bool group() const;
@@ -155,7 +198,7 @@ public:
     MultiRollNode(RollNode::ptr node, mod_list mod_list);
     RollNode::ptr copy() const;
     static mod_list copy_modlist(const mod_list& m);
-    dice_roll roll();
+    result_list roll();
     std::string formula() const;
     bool multi() const;
     bool group() const;
@@ -176,7 +219,7 @@ public:
     RollNode::ptr copy() const;
     static node_list copy_nodelist(const node_list& m);
     void insert(RollNode::ptr node);
-    dice_roll roll();
+    result_list roll();
     std::string formula() const;
     bool multi() const;
     bool group() const;
