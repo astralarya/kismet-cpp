@@ -47,16 +47,26 @@ public:
          report(),value() {}
 
          std::string value_str() const {
+             std::map<std::string,unsigned int> map;
+             for(auto it = value.begin(); it != value.end(); it++) {
+                 auto find = map.find(it->name);
+                 if(find != map.end())
+                     find->second++;
+                 else
+                     map[it->name] = 1;
+             }
              std::stringstream ss;
              if(value.size() > 1)
                  ss << '{';
              bool first = true;
-             for(auto it = value.begin(); it != value.end(); it++) {
+             for(auto it = map.begin(); it != map.end(); it++) {
                  if(first)
                      first = false;
                  else
                      ss << ',';
-                 ss << it->name;
+                 ss << it->first;
+                 if(it->second > 1)
+                     ss << '*' << it->second;
              }
              if(value.size() > 1)
                  ss << '}';
@@ -117,7 +127,6 @@ protected:
 
 class EnumRollNode: public DiceRollNode {
 public:
-    typedef std::map<std::string,unsigned int> result_map;
     struct enum_roll {
         atom_list enumerator;
         Dice::roll_type die;
