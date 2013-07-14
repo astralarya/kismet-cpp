@@ -177,7 +177,7 @@ constant:
     number
     { $$ = RollNode::atom($1); }
   | STRING
-    { $$ = RollNode::atom($1); }
+    { $$ = RollNode::atom(d_scanner.matched()); }
 ;
 number:
     NUMBER
