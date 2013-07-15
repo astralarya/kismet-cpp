@@ -317,9 +317,9 @@ RollNode::result_list MathRollNode::roll() {
     auto first = _first->roll();
     for(auto first_it = first.begin(); first_it != first.end(); first_it++) {
         atom_list list;
-        for(auto first_result_it = first_it->value.begin(); first_result_it != first_it->value.end(); first_result_it++) {
-            auto second = _second->roll();
-            for(auto second_it = second.begin(); second_it != second.end(); second_it++) {
+        auto second = _second->roll();
+        for(auto second_it = second.begin(); second_it != second.end(); second_it++) {
+            for(auto first_result_it = first_it->value.begin(); first_result_it != first_it->value.end(); first_result_it++) {
                 for(auto second_result_it = second_it->value.begin(); second_result_it != second_it->value.end(); second_result_it++) {
                     // construct report
                     ss.str("");

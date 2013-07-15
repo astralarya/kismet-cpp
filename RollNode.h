@@ -48,17 +48,32 @@ public:
 
          std::string value_str() const {
              std::map<std::string,unsigned int> map;
+             std::stringstream ss;
+             // Build value
+             if(value.size() > 1)
+                 ss << '{';
+             bool first = true;
              for(auto it = value.begin(); it != value.end(); it++) {
+                 if(first)
+                     first = false;
+                 else
+                     ss << ',';
+                 ss << it->name;
                  auto find = map.find(it->name);
                  if(find != map.end())
                      find->second++;
                  else
                      map[it->name] = 1;
              }
-             std::stringstream ss;
+             if(value.size() > 1)
+                 ss << '}';
+             std::string value_str(ss.str());
+
+             // Build result
+             ss.str("");
              if(value.size() > 1)
                  ss << '{';
-             bool first = true;
+             first = true;
              for(auto it = map.begin(); it != map.end(); it++) {
                  if(first)
                      first = false;
@@ -70,6 +85,17 @@ public:
              }
              if(value.size() > 1)
                  ss << '}';
+             std::string summary_str(ss.str());
+             
+             ss.str("");
+             if(value_str != report)
+                 if(summary_str != value_str)
+                     ss << value_str << " = " << summary_str;
+                 else
+                     ss << value_str;
+             else
+                 ss << summary_str;
+             
              return ss.str();
          }
     };
