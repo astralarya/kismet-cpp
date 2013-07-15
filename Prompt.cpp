@@ -11,12 +11,6 @@
 bool Prompt::_ready = false;
 bool Prompt::_eof = false;
 
-int readline_exit(int count, int key) {
-    rl_replace_line("exit",5);
-    rl_done = 1;
-    return 0;
-}
-
 int readline_report(int count, int key) {
     std::string report(Options::Instance()->get(FULL_REPORT));
     if(report.size()) {
@@ -29,7 +23,6 @@ int readline_report(int count, int key) {
 
 void Prompt::_initialize() {
     ::rl_bind_key('\t',readline_report);
-    ::rl_bind_key('',readline_exit);
     _ready = true;
 }
 

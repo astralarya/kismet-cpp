@@ -33,10 +33,20 @@ size_t KismetScannerBase::Input::next() {
         if(d_in == 0)
             return AT_EOF;
         if(Options::Instance()->get(INTERACTIVE)) {
-            if(::Prompt::eof())
+            if(::Prompt::eof()) {
                 return AT_EOF;
+            }
             // readline prompt
             std::string read(::Prompt::readline(prompt()));
+            if(::Prompt::eof()) {
+                d_deque.push_back('\n');
+                d_deque.push_back('e');
+                d_deque.push_back('x');
+                d_deque.push_back('i');
+                d_deque.push_back('t');
+                d_deque.push_back('\n');
+                d_deque.push_back(AT_EOF);
+            }
             for(auto it = read.begin(); it != read.end(); it++)
                 d_deque.push_back(*it);
             d_deque.push_back('\n');
