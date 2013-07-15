@@ -14,9 +14,11 @@
 class Personality {
 public:
     static void respond_name();
+    static void respond_newline();
     typedef const std::vector<std::string> response_pool;
 private:
     static response_pool _name_response;
+    static bool _responded;
 };
 
 #endif // PERSONALITY_H

@@ -5,8 +5,10 @@
 
 #include "Personality.h"
 
+bool Personality::_responded = false;
+
 Personality::response_pool Personality::_name_response
-   {"<3","<3","<3","<3","<3","<3",
+   {"<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3",
     "o/","\\o","\\o/",":D",";D",";)",":O",
     "D:","D':",")':","O:","XD","DX","D'X",">.<",
     ":P","=)","(=","c:",":/",":|",":\\","/:","|:","\\:",
@@ -22,14 +24,24 @@ Personality::response_pool Personality::_name_response
     "That's me!", "How's it going?","Love you too!!", "Love you too!","Awww, youu!", "Ahhh!!",
     "hello", "Hello?", "Hello!","What's up?", "Yes?","Yes!", "YES!", "No.", "No!", "NO!",
     "Fuck!", "sorry", "Sorry.", "Sorry...", "Fuck you!", "I'm sorry", "ahem, Error...",
-    "AHAHAHAHA!!", "MUHAHAHAHAHAHAAAA!!!!", "HAH HAH HAH",
-    "What?", "Why?", "wut", "wut?", "err", "Why??", "What??", "What!?",
+    "AHAHAHAHA!!", "MUHAHAHAHAHAHAAAA!!!!", "HAH HAH HAH", "AWW YEAAH!!", "Duuuude", "Not cool.",
+    "What?", "Why?", "wut", "wut?", "err", "Why??", "What??", "What!?", "Hmph.", "*hiss*",
      "Sup.", "Sup?", "*sigh*", "*clap clap*", "hum", "hmmm", "uhh", "umm", "wtf", "wtf!", "wtf?",
     "xoxo", "asdf", "ababa", "42","Kismet","kismet", "KISMET", "KISMET!!", "0xkismet", "It's a KISMET!",
-    "<3","<3","<3","<3","<3","<3"
+    "<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3"
     };
 
 void Personality::respond_name() {
-    if(Options::Instance()->get(PERSONALITY))
-        std::cout << _name_response[Dice::roll(_name_response.size(),1)-1] << '\n';
+    if(Personality::_responded)
+        std::cout << ' ';
+    if(Options::Instance()->get(PERSONALITY)) {
+        std::cout << _name_response[Dice::roll(_name_response.size(),1)-1];
+        _responded = true;
+    }
+}
+
+void Personality::respond_newline() {
+    if(Personality::_responded)
+        std::cout << std::endl;
+    Personality::_responded = false;
 }

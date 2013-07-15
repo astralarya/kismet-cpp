@@ -58,6 +58,6 @@ MULTILINECOMMENT_E      "*/"
 "("             return KismetParser::R_PAREN;
 ")"             return KismetParser::L_PAREN;
 ","             return KismetParser::COMMA;
-\n              return KismetParser::NEWLINE;
+\n              Personality::respond_newline(); return KismetParser::NEWLINE;
 [[:space:]]             /* empty */
 .                       /* empty */
