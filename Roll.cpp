@@ -43,7 +43,7 @@ std::string Roll::print(bool full) const {
         if(_roll.size()>1)
             ss << '\n';
         // Build report
-        if(!Options::Instance()->get(INTERACTIVE) || it->report.size() < 1000 || full)
+        if(!Options::Instance()->get(INTERACTIVE) || it->report.size() < 80 || full)
             ss << it->report;
         else
             abbrev = true;
@@ -53,9 +53,10 @@ std::string Roll::print(bool full) const {
             ss << " = " << result;
     }
     if(abbrev) {
-        Options::Instance()->set(FULL_REPORT,print(true));
         ss << "\nTAB for report";
-    }
+        Options::Instance()->set(FULL_REPORT,print(true));
+    } else
+        Options::Instance()->set(FULL_REPORT,"");
     return ss.str();
 }
 
