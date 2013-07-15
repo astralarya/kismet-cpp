@@ -109,8 +109,8 @@ int main(int argc, const char* argv[])
 
     // Greet interactive
     if(Options::Instance()->get(INTERACTIVE))
-        std::cout << "Greetings, human!\n"
-                     "I am Kismet. Input a roll and press ENTER.\n"
+        std::cout << "Greetings, human! I am Kismet <3\n"
+                     "Input a roll and press ENTER.\n"
                      "Exit with 'exit' or CTRL-D." << std::endl;
 
     // run program
