@@ -111,7 +111,7 @@ int main(int argc, const char* argv[])
     if(Options::Instance()->get(INTERACTIVE))
         std::cout << "Greetings, human!\n"
                      "I am Kismet. Input a roll and press ENTER.\n"
-                     "Exit with 'exit'." << std::endl;
+                     "Exit with 'exit' or CTRL-D." << std::endl;
 
     // run program
     KismetParser kismet;
