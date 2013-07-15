@@ -6,6 +6,7 @@
 #ifndef PERSONALITY_H
 #define PERSONALITY_H
 
+#include "Options.h"
 #include "Dice.h"
 #include <string>
 #include <iostream>

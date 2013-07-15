@@ -10,7 +10,7 @@
 #include "Mode.h"
 
 // Typed modes
-enum bool_mode{INTERACTIVE,REACTIVE};
+enum bool_mode{INTERACTIVE,REACTIVE,PERSONALITY};
 template <>
 struct Type<bool_mode> {
     typedef bool T;
@@ -36,9 +36,9 @@ struct Type<string_mode> {
 
 // Mode Signitures
 template <>
-typename TypeInfo<bool_mode>::key_type TypeInfo<bool_mode>::keys {{INTERACTIVE, "INTERACTIVE"},{REACTIVE,"REACTIVE"}};
+typename TypeInfo<bool_mode>::key_type TypeInfo<bool_mode>::keys {{INTERACTIVE, "INTERACTIVE"},{REACTIVE,"REACTIVE"},{PERSONALITY,"PERSONALITY"}};
 template <>
-typename TypeInfo<bool_mode>::defaults_type TypeInfo<bool_mode>::defaults {{INTERACTIVE,{true}},{REACTIVE,{false}}};
+typename TypeInfo<bool_mode>::defaults_type TypeInfo<bool_mode>::defaults {{INTERACTIVE,{true}},{REACTIVE,{false}},{PERSONALITY,{true}}};
 template <>
 typename TypeInfo<bool_mode>::init_type TypeInfo<bool_mode>::init = false;
 
