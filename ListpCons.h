@@ -40,6 +40,7 @@ public:
 
     ListpCons();
     ListpCons(ListpCons::ptr car, ListpCons::ptr cdr);
+    ListpCons(const Atom& atom);
     ListpCons(double value);
     ListpCons(std::string name);
     ListpCons(std::string name,double value);

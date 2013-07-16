@@ -12,6 +12,9 @@ _car(), _cdr() {}
 ListpCons::ListpCons(ListpCons::ptr car, ListpCons::ptr cdr):
 _car(std::move(car)), _cdr(std::move(_cdr)) {}
 
+ListpCons::ListpCons(const ListpCons::Atom& atom):
+_car(new ListpAtom(atom)), _cdr() {}
+
 ListpCons::ListpCons(double value):
 _car(new ListpAtom(value)), _cdr() {}
 

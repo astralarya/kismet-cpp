@@ -10,6 +10,13 @@
 
 class Listp {
 public:
+    Listp();
+    Listp(ListpCons::ptr head);
+    Listp(const ListpCons::Atom& atom);
+    Listp(std::string name);
+    Listp(double value);
+    Listp(std::string name, double value);
+    void push_back(ListpCons::ptr list);
     virtual std::string print() const;
 private:
     ListpCons::ptr _head;
