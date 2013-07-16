@@ -73,6 +73,6 @@ public:
     typename ListpCons<T>::Atom atom() const;
     std::string print() const;
 private:
-    T _atom;
+    typename ListpCons<T>::Atom _atom;
 };
 
