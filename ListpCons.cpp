@@ -6,48 +6,48 @@
 
 #include "ListpCons.h"
 
-ListpCons::ListpCons():
+template <class T>
+ListpCons<T>::ListpCons():
 _car(), _cdr() {}
 
-ListpCons::ListpCons(ListpCons::ptr car, ListpCons::ptr cdr):
+template <class T>
+ListpCons<T>::ListpCons(ListpCons::ptr car, ListpCons::ptr cdr):
 _car(std::move(car)), _cdr(std::move(_cdr)) {}
 
-ListpCons::ListpCons(const ListpCons::Atom& atom):
-_car(new ListpAtom(atom)), _cdr() {}
+template <class T>
+ListpCons<T>::ListpCons(const ListpCons::Atom& atom):
+_car(new ListpAtom<T>(atom)), _cdr() {}
 
-ListpCons::ListpCons(double value):
-_car(new ListpAtom(value)), _cdr() {}
-
-ListpCons::ListpCons(std::string name):
-_car(new ListpAtom(name)), _cdr() {}
-
-ListpCons::ListpCons(std::string name,double value):
-_car(new ListpAtom(name,value)), _cdr() {}
-
-ListpCons::ptr ListpCons::copy() const {
+template <class T>
+typename ListpCons<T>::ptr ListpCons<T>::copy() const {
     return ListpCons::ptr(new ListpCons(_car->copy(),_cdr->copy()));
 }
 
-bool ListpCons::isAtom() const {
+template <class T>
+bool ListpCons<T>::isAtom() const {
     return false;
 }
 
-ListpCons::Atom ListpCons::atom() const {
+template <class T>
+typename ListpCons<T>::Atom ListpCons<T>::atom() const {
     return Atom();
 }
 
-void ListpCons::insert(ListpCons::ptr list) {
+template <class T>
+void ListpCons<T>::insert(ListpCons<T>::ptr list) {
     _cdr = ListpCons::ptr(new ListpCons(std::move(list),std::move(_cdr)));
 }
 
-void ListpCons::push_back(ListpCons::ptr list) {
+template <class T>
+void ListpCons<T>::push_back(ListpCons<T>::ptr list) {
     if(!_cdr)
         _cdr = ListpCons::ptr(new ListpCons(std::move(list),std::move(_cdr)));
     else
         _cdr->push_back(std::move(list));
 }
 
-std::string ListpCons::print() const {
+template <class T>
+std::string ListpCons<T>::print() const {
     std::stringstream ss;
     if(_car) {
         if(!_car->isAtom())
@@ -62,19 +62,21 @@ std::string ListpCons::print() const {
     return ss.str();
 }
 
+template <class T>
 template<typename Func>
-void ListpCons::transform(Func func) {
+void ListpCons<T>::transform(Func func) {
     if(_car)
         if(_car->isAtom())
-           _car = ListpCons::ptr(new ListpAtom(func(_car->atom())));
+           _car = typename ListpCons<T>::ptr(new ListpAtom<T>(func(_car->atom())));
         else
            _car->transform(func);
     if(_cdr)
         _cdr->transform(func);
 }
 
+template <class T>
 template<typename Func>
-void ListpCons::map(Func func) {
+void ListpCons<T>::map(Func func) {
     if(_car)
         if(_car->isAtom())
            _car = ListpCons::ptr(func(_car->atom()));
@@ -90,33 +92,30 @@ ListpCons::Atom ListpCons::reduce(Func func) {
 }
 */
 
-ListpAtom::ListpAtom():
-ListpCons(), _atom() {}
+template <class T>
+ListpAtom<T>::ListpAtom():
+ListpCons<T>(), _atom() {}
 
-ListpAtom::ListpAtom(double value):
-ListpCons(), _atom(value) {}
+template <class T>
+ListpAtom<T>::ListpAtom(typename ListpCons<T>::Atom atom):
+ListpCons<T>(), _atom(atom) {}
 
-ListpAtom::ListpAtom(std::string name):
-ListpCons(), _atom(name) {}
-
-ListpAtom::ListpAtom(std::string name,double value):
-ListpCons(), _atom(name,value) {}
-
-ListpAtom::ListpAtom(ListpCons::Atom atom):
-ListpCons(), _atom(atom) {}
-
-ListpCons::ptr ListpAtom::copy() const {
-    return ListpCons::ptr(new ListpAtom(_atom));
+template <class T>
+typename ListpCons<T>::ptr ListpAtom<T>::copy() const {
+    return ListpCons<T>::ptr(new ListpAtom<T>(_atom));
 }
 
-bool ListpAtom::isAtom() const {
+template <class T>
+bool ListpAtom<T>::isAtom() const {
     return true;
 }
 
-ListpCons::Atom ListpAtom::atom() const {
+template <class T>
+typename ListpCons<T>::Atom ListpAtom<T>::atom() const {
     return _atom;
 }
 
-std::string ListpAtom::print() const {
+template <class T>
+std::string ListpAtom<T>::print() const {
     return _atom.print();
 }

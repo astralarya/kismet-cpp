@@ -8,17 +8,15 @@
 #include <memory>
 #include <string>
 
+template <class T>
 class Listp {
 public:
     Listp();
-    Listp(ListpCons::ptr head);
-    Listp(const ListpCons::Atom& atom);
-    Listp(std::string name);
-    Listp(double value);
-    Listp(std::string name, double value);
-    void push_back(ListpCons::ptr list);
+    Listp(typename ListpCons<T>::ptr head);
+    Listp(const typename ListpCons<T>::Atom& atom);
+    void push_back(typename ListpCons<T>::ptr list);
     virtual std::string print() const;
 private:
-    ListpCons::ptr _head;
+    typename ListpCons<T>::ptr _head;
 };
 

@@ -5,29 +5,25 @@
 
 #include "Listp.h"
 
-Listp::Listp():
+template <class T>
+Listp<T>::Listp():
 _head() {}
 
-Listp::Listp(ListpCons::ptr head):
+template <class T>
+Listp<T>::Listp(typename ListpCons<T>::ptr head):
 _head(std::move(head)) {}
 
-Listp::Listp(const ListpCons::Atom& atom):
-_head(new ListpCons(atom)) {}
+template <class T>
+Listp<T>::Listp(const typename ListpCons<T>::Atom& atom):
+_head(new ListpCons<T>(atom)) {}
 
-Listp::Listp(std::string name):
-_head(new ListpCons(name)) {}
-
-Listp::Listp(double value):
-_head(new ListpCons(value)) {}
-
-Listp::Listp(std::string name, double value):
-_head(new ListpCons(name,value)) {}
-
-void Listp::push_back(ListpCons::ptr list) {
+template <class T>
+void Listp<T>::push_back(typename ListpCons<T>::ptr list) {
     _head->push_back(std::move(list));
 }
 
-std::string Listp::print() const {
+template <class T>
+std::string Listp<T>::print() const {
     std::stringstream ss;
     if(_head) {
         if(!_head->isAtom())

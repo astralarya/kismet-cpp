@@ -8,47 +8,47 @@
 #include <string>
 #include <sstream>
 
+struct ListpElem {
+    std::string name;
+    double value;
+    bool null;
+
+    ListpElem():
+    name(),value(0),null(true) {}
+    ListpElem(double value):
+    name(),value(value),null(false) {}
+    ListpElem(std::string name):
+    name(name),value(0),null(true) {}
+    ListpElem(std::string name,double value):
+    name(name),value(value),null(false) {}
+
+    std::string print() const {
+        if(name.size())
+            return name;
+        else if(null)
+            return "NIL";
+        else {
+            std::stringstream ss;
+            ss << value;
+            return ss.str();
+        }
+    }
+};
+
+template <class T>
 struct ListpCons {
 public:
-    typedef std::unique_ptr<ListpCons> ptr;
-    struct Atom {
-        std::string name;
-        double value;
-        bool null;
-
-        Atom():
-        name(),value(0),null(true) {}
-        Atom(double value):
-        name(),value(value),null(false) {}
-        Atom(std::string name):
-        name(name),value(0),null(true) {}
-        Atom(std::string name,double value):
-        name(name),value(value),null(false) {}
-
-        std::string print() const {
-            if(name.size())
-                return name;
-            else if(null)
-                return "NIL";
-            else {
-                std::stringstream ss;
-                ss << value;
-                return ss.str();
-            }
-        }
-    };
+    typedef std::unique_ptr<ListpCons<T> > ptr;
+    typedef T Atom;
 
     ListpCons();
-    ListpCons(ListpCons::ptr car, ListpCons::ptr cdr);
+    ListpCons(ListpCons<T>::ptr car, ListpCons<T>::ptr cdr);
     ListpCons(const Atom& atom);
-    ListpCons(double value);
-    ListpCons(std::string name);
-    ListpCons(std::string name,double value);
     ptr copy() const;
     virtual bool isAtom() const;
     virtual Atom atom() const;
-    void insert(ListpCons::ptr list);
-    void push_back(ListpCons::ptr list);
+    void insert(ListpCons<T>::ptr list);
+    void push_back(ListpCons<T>::ptr list);
     virtual std::string print() const;
     // apply a scalar transformation to each atom
     // Func should take a ListpCons::Atom and return an ListpCons::Atom
@@ -60,21 +60,19 @@ public:
     // Func should take a ListpCons and return a ListpCons::Atom
     //template<typename Func> Atom reduce(Func func);
 private:
-    ListpCons::ptr _car, _cdr;
+    ListpCons<T>::ptr _car, _cdr;
 };
 
-class ListpAtom: public ListpCons {
+template <class T>
+class ListpAtom: public ListpCons<T> {
 public:
     ListpAtom();
-    ListpAtom(double value);
-    ListpAtom(std::string name);
-    ListpAtom(std::string name,double value);
-    ListpAtom(Atom atom);
-    ptr copy() const;
+    ListpAtom(typename ListpCons<T>::Atom atom);
+    typename ListpCons<T>::ptr copy() const;
     bool isAtom() const;
-    Atom atom() const;
+    typename ListpCons<T>::Atom atom() const;
     std::string print() const;
 private:
-    Atom _atom;
+    T _atom;
 };
 
