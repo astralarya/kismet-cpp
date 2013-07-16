@@ -16,7 +16,7 @@ struct Type<bool_mode> {
     typedef bool T;
 };
 
-enum int_mode{DEFAULT_DIE};
+enum int_mode{DEFAULT_DIE,SHORT_REPORT_CUTOFF};
 template <>
 struct Type<int_mode> {
     typedef int T;
@@ -43,9 +43,9 @@ template <>
 typename TypeInfo<bool_mode>::init_type TypeInfo<bool_mode>::init = false;
 
 template <>
-typename TypeInfo<int_mode>::key_type TypeInfo<int_mode>::keys {{DEFAULT_DIE, "DEFAULT_DIE"}};
+typename TypeInfo<int_mode>::key_type TypeInfo<int_mode>::keys {{DEFAULT_DIE, "DEFAULT_DIE"},{SHORT_REPORT_CUTOFF,"SHORT_REPORT_CUTOFF"}};
 template <>
-typename TypeInfo<int_mode>::defaults_type TypeInfo<int_mode>::defaults {{DEFAULT_DIE,{20}}};
+typename TypeInfo<int_mode>::defaults_type TypeInfo<int_mode>::defaults {{DEFAULT_DIE,{20}},{SHORT_REPORT_CUTOFF,{256}}};
 template <>
 typename TypeInfo<int_mode>::init_type TypeInfo<int_mode>::init = 0;
 

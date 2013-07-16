@@ -43,7 +43,7 @@ std::string Roll::print(bool full) const {
         if(_roll.size()>1)
             ss << '\n';
         // Build report
-        if(!Options::Instance()->get(INTERACTIVE) || it->report.size() < 80 || full)
+        if(!Options::Instance()->get(INTERACTIVE) || it->report.size() < Options::Instance()->get(SHORT_REPORT_CUTOFF) || full)
             ss << it->report;
         else
             abbrev = true;
