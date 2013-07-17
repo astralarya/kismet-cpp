@@ -23,8 +23,12 @@ public:
     Listp(const Atom& atom):
     _head(new ListpCons<T>(atom)) {}
 
-    Listp<T>::ptr copy() const {
+    ptr copy() const {
         return ptr(new Listp<T>(_head->copy()));
+    }
+
+    typename ListpCons<T>::ptr copy_head() const {
+        return _head->copy();
     }
 
     friend std::ostream& operator<<(std::ostream& out, const Listp<T>& list) {
@@ -34,6 +38,16 @@ public:
         if(!list._head->isAtom())
             out << '}';
         return out;
+    }
+
+    std::string print(std::string delim = ",", std::string openbr = "{", std::string closebr = "}") const {
+        std::stringstream ss;
+        if(!_head->isAtom())
+            ss << openbr;
+        ss << _head->print(delim,openbr,closebr);
+        if(!_head->isAtom())
+            ss << closebr;
+        return ss.str();
     }
 
     void push_back(const Listp<T>& list) {
@@ -63,13 +77,6 @@ public:
     // Func should take an const Listp::Atom& and return a ListpCons
     template<typename Func> void map(const Func &func) {
         return _head->map(func);
-    }
-    // reduce the list
-    // AtomFunc should take a const Listp::Atom& and return a Return
-    // JoinFunc should take a Return(car), Return(cdr) and return a Return
-    template<typename AtomFunc, typename JoinFunc>
-    auto reduce(const AtomFunc atomFunc, const JoinFunc joinFunc) -> decltype(atomFunc()) const {
-        return _head->reduce(atomFunc,joinFunc);
     }
 private:
     typename ListpCons<T>::ptr _head;

@@ -54,6 +54,26 @@ public:
         }
     }
 
+    std::string print(std::string delim = ",", std::string openbr = "{", std::string closebr = "}") const {
+        std::stringstream ss;
+        if(_atom) {
+            ss << *_atom;
+            return ss.str();
+        } else {
+            if(_car) {
+                if(!_car->isAtom())
+                    ss << openbr;
+                ss << _car->print(delim,openbr,closebr);
+                if(!_car->isAtom())
+                    ss << closebr;
+            } else
+                ss << "NIL";
+            if(_cdr)
+                ss << delim << _cdr->print(delim,openbr,closebr);
+        }
+        return ss.str();
+    }
+
     bool isAtom() const {
         if(_atom)
             return true;
@@ -93,25 +113,17 @@ public:
     }
 
     // map each atom against a list
-    // Func should take an const ListpCons::Atom& and return a ListpCons
+    // Func should take an const ListpCons::Atom& and return a ListpCons::ptr
     template<typename Func> void map(const Func &func) {
         if(_car)
             if(_car->isAtom())
-               _car = std::move(func(_car->atom()));
+               _car = func(_car->atom());
             else
                _car->map(func);
         if(_cdr)
             _cdr->map(func);
     }
 
-    // reduce the list
-    // AtomFunc should take a const ListpCons::Atom& and return a Return
-    // JoinFunc should take a Return, Return and return a Return
-    template<typename AtomFunc, typename JoinFunc, typename Return> Return reduce(const AtomFunc &atomFunc, const JoinFunc &joinFunc) const {
-        if(_atom)
-            return atomFunc(_atom);
-        return reduce(_cdr->reduce(atomFunc,joinFunc),_car->reduce(atomFunc,joinFunc));
-    }
 private:
     ptr _car, _cdr;
     AtomPtr _atom;
