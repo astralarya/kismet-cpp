@@ -4,6 +4,7 @@
 // An object that manages an interactive prompt
 
 #include "Options.h"
+#include "Personality.h"
 #include <string>
 #include <iostream>
 

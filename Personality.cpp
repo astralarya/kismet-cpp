@@ -5,7 +5,8 @@
 
 #include "Personality.h"
 
-bool Personality::_responded = false;
+unsigned int Personality::_trigger_count = 0;
+std::string Personality::_seed = "";
 
 Personality::response_pool Personality::_name_response
    {"<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3",
@@ -36,16 +37,33 @@ Personality::response_pool Personality::_name_response
     };
 
 void Personality::respond_name() {
-    if(Personality::_responded)
-        std::cout << ' ';
-    if(Options::Instance()->get(PERSONALITY)) {
-        std::cout << _name_response[Dice::roll(_name_response.size(),1)-1];
-        _responded = true;
-    }
+    _trigger_count++;
 }
 
 void Personality::respond_newline() {
-    if(Personality::_responded)
+    if(Options::Instance()->get(PERSONALITY) && _trigger_count > 0 && _seed.size()) {
+        std::hash<std::string> hash;
+        unsigned seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+        seed = seed%hash(_seed);
+        std::default_random_engine generator(seed);
+        std::gamma_distribution<double> distribution(1.8,_trigger_count/3.0);
+        std::uniform_int_distribution<unsigned int> linear_distribution(0,_name_response.size()-1);
+        unsigned times = distribution(generator);
+        times++;
+        bool first = true;
+        for(int i = 0; i < times; i++) {
+            if(first)
+                first = false;
+            else
+                std::cout << ' ';
+            std::cout << _name_response[linear_distribution(generator)];
+        }
         std::cout << std::endl;
-    Personality::_responded = false;
+    }
+    _trigger_count = 0;
+    _seed.clear();
+}
+
+void Personality::set_seed(std::string seed) {
+    _seed = seed;
 }
