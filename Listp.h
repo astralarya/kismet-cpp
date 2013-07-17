@@ -50,6 +50,10 @@ public:
         return ss.str();
     }
 
+    size_t size() const {
+        return _head->size();
+    }
+
     void push_back(const Listp<T>& list) {
         push_back(list._head->copy()->copy());
     }

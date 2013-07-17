@@ -74,6 +74,13 @@ public:
         return ss.str();
     }
 
+    size_t size() const {
+        if(_cdr)
+            return 1 + _cdr->size();
+        else
+            return 1;
+    }
+
     bool isAtom() const {
         if(_atom)
             return true;
