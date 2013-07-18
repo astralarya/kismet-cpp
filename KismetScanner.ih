@@ -4,6 +4,7 @@
 #include "KismetScanner.h"
 #include "Prompt.h"
 #include "Personality.h"
+#include <algorithm>
 
 // $insert namespace-use
     // UN-comment the next using-declaration if you want to use

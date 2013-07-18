@@ -36,17 +36,6 @@ std::string Prompt::readline(const std::string& prompt) {
         if(*read) {
             // if we have a line, convert to string
             line = read;
-            // Personality processing
-            if(Options::Instance()->get(PERSONALITY)) {
-                bool respond = true;
-                for(int i = 0; i < 10; i++) {
-                    auto prev_line = ::history_get(::history_length-i);
-                    if(prev_line && (line == std::string(prev_line->line)))
-                        respond = false;
-                }
-                if(respond)
-                    Personality::set_seed(line);
-            }
             // save to history
             if(last_command) {
                 if(line != std::string(last_command->line))

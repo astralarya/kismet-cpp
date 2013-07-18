@@ -19,6 +19,8 @@ private:
     size_t next();                      // obtain the next character
     std::string prompt();           // get the prompt string
     std::deque<unsigned char> d_deque;  // pending input chars
+    std::string line; // current line
+    std::deque<std::string> history; // line history
     std::istream *d_in;                 // ptr for easy streamswitching
     size_t d_lineNr;                    // line count
 };

@@ -19,8 +19,17 @@ size_t KismetScannerBase::Input::get() {
     // get the next input char
     switch (size_t ch = next()) {
     case '\n':
+        if(std::find(history.begin(),history.end(),line) == history.end()) {
+            ::Personality::set_seed(line);
+            history.push_back(line);
+            if(history.size() > 5)
+                history.pop_front();
+        }
+        line.clear();
         ++d_lineNr;
+        return ch;
     default:
+        line.push_back((char)ch);
         return ch;
     }
 }
