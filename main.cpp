@@ -26,8 +26,7 @@ inline void printshorthelp()
     std::cout << "Usage: " << PROGRAM_NAME << '\n';
 }
 
-void printhelp()
-{
+void printhelp() {
     // output help
     printshorthelp();
     std::cout << "<Description>\n"
@@ -38,25 +37,23 @@ void printhelp()
                  "-h, -?\t\t--help\t\t\tShow this message. Secrets?\n"
                  "-v\t\t--version\t\tOutput program version\n";
 }
-void printsecrets()
-{
+
+void printsecrets() {
     printhelp();
-    std::cout << "-V\t\t--version-long\t\tOutput full program version\n";
+    std::cout << "-p\t\t--personality\t\tActivate personality\n"
+                 "-V\t\t--version-long\t\tOutput full program version\n";
 }
 
-void printversion()
-{
+void printversion() {
     std::cout << PROGRAM_NAME << ' ' << SOURCE_VERSION << std::endl;
 }
 
-void printrevision()
-{
+void printrevision() {
     std::cout << REVISION_HASH << std::endl
               << REVISION_STATUS << std::endl;
 }
 
-int main(int argc, const char* argv[])
-{
+int main(int argc, const char* argv[]) {
 
     // Initialize
     Initializer init(argc, argv);
@@ -96,6 +93,10 @@ int main(int argc, const char* argv[])
         // set non-interactive, depersonalize
         Options::Instance()->set(INTERACTIVE,false);
         Options::Instance()->set(PERSONALITY,false);
+    }
+    if(init.flag("personality") ||
+       init.flag('p') ) {
+        Options::Instance()->set(PERSONALITY,true);
     }
     if(init.flag("interactive") ||
        init.flag('i') ) {
