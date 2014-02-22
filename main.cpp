@@ -19,7 +19,7 @@
 
 #include "Initializer.h"
 #include "Options.h"
-#include "KismetParser.h"
+#include "Kismet.h"
 #include <iostream>
 
 int main(int argc, char** argv) {
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
                      "Exit with 'exit' or CTRL-D." << std::endl;
 
     // run program
-    KismetParser kismet;
+    Kismet kismet;
     kismet.parse();
 
     // close interactive
