@@ -1,89 +1,156 @@
-/*
- * Initializer.cpp
- *
- *      Author: mara
- */
+// Initializer.cpp
+//
+// Copyright (C) 2013 Mara Kim
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program. If not, see http://www.gnu.org/licenses/.
+
 
 #include "Initializer.h"
 
-Initializer::Initializer(int argc, const char* argv[]):
+extern "C" {
+    int Initializer_argp_funcall(int key, char* arg, struct argp_state *state) {
+        return ((Initializer*)state->input)->argp_funcall(key, arg, state);
+    }
+}
+
+void Initializer_argp_program_version_hook(FILE* stream, argp_state* state) {
+    // Global PRINT_VERSION defined in Info.h
+    PRINT_VERSION(stream);
+}
+
+void (*argp_program_version_hook) (FILE *stream, struct argp_state *state) = Initializer_argp_program_version_hook;
+
+const char* argp_program_bug_address = PROGRAM_BUG_ADDRESS;
+
+void signalHandler(int signum) {
+    printf("\nCaught signal %d\n",signum);
+    PRINT_REVISION();
+    exit(signum);
+}
+
+Initializer::Initializer(int argc, char** argv, const char* argdoc, const char* progdoc):
 _argc(argc),
-_argv(argv){
-	// check for arguments
-	if(_argc > 1)
-	{
-		// process arguments
-		std::set<char> _prevflags;
-		std::string _prevlong;
-		for(size_t i = 1; i < _argc; i++) {
-			std::string s = _argv[i];
-			if(s.find("--") == 0) {
-				_longflags.insert(s.substr(2));
-				_prevlong = s.substr(2);
-			} else if(s.find("-") == 0) {
-				_prevflags.clear();
-				for(size_t j = 1; j < s.length(); j++) {
-					_shortflags.insert(s[j]);
-					_prevflags.insert(s[j]);
-				}
-			} else {
-				if(_prevflags.size())
-					for(std::set<char>::iterator it = _prevflags.begin();
-							it != _prevflags.end();
-							it++)
-						_shortflagextras[*it][i] = s;
-				if(_prevlong.length())
-					_longflagextras[_prevlong][i] = s;
-				_unusedextras[i] = s;
-			}
-		}
-	}
+_argv(argv),
+_arg_opts(),
+_arg_funcs(),
+_argp() {
+    // Initialize Argp parser
+    _argp.parser = Initializer_argp_funcall;
+    _argp.args_doc = argdoc;
+    _argp.doc = progdoc;
+
+    // Define -# option to retrieve detailed version info
+    option(0, '#', "FILTER", 0, // output revision hash
+           [&] (char* arg, Initializer::state* state) -> int {
+               PRINT_REVISION(arg);
+               exit(0);
+           },true,true);
+
+    // Set signal handler
+    signal(SIGINT, signalHandler);
+    signal(SIGABRT, signalHandler);
+    signal(SIGFPE, signalHandler);
+    signal(SIGILL, signalHandler);
+    signal(SIGSEGV, signalHandler);
+    signal(SIGTERM, signalHandler);
+    signal(SIGHUP, signalHandler);
 }
 
 Initializer::~Initializer() {
-	// dtor
+    // dtor
 }
 
-bool Initializer::noargs() {
-	return _argc == 1;
+void Initializer::option(const char* longflag, const int shortflag, const char* argument, const char* doc,
+                         optFunc function,
+                         const bool arg_optional, const bool hidden) {
+    struct argp_option opt = {0};
+    opt.name = longflag;
+    opt.key = shortflag;
+    opt.arg = argument;
+    opt.doc = doc;
+    if(arg_optional)
+        opt.flags = opt.flags | OPTION_ARG_OPTIONAL;
+    if(hidden)
+        opt.flags = opt.flags | OPTION_HIDDEN;
+    _arg_opts.push_back(opt);
+    _arg_funcs[opt.key] = function;
 }
 
-bool Initializer::flag(char c) {
-	return _shortflags.find(c) != _shortflags.end();
+void Initializer::option(const std::vector<const char*>& longflags, const std::vector<int>& shortflags,
+                         const char* argument, const char* doc, optFunc function,
+                         const bool arg_optional, const bool hidden) {
+    bool first = true;
+    auto long_it = longflags.begin();
+    auto short_it = shortflags.begin();
+    while(long_it != longflags.end() || short_it != shortflags.end()) {
+        argp_option opt;
+        if(long_it != longflags.end())
+            opt.name = *long_it;
+        if(short_it != shortflags.end())
+            opt.key = *short_it;
+        if(first) {
+            first = false;
+            opt.arg = argument;
+            opt.doc = doc;
+            if(arg_optional)
+                opt.flags = opt.flags | OPTION_ARG_OPTIONAL;
+            if(hidden)
+                opt.flags = opt.flags | OPTION_HIDDEN;
+            _arg_funcs[opt.key] = function;
+        } else
+            opt.flags = opt.flags | OPTION_ALIAS;
+        _arg_opts.push_back(opt);
+
+        // Increment
+        if(long_it != longflags.end())
+            long_it++;
+        if(short_it != shortflags.end())
+            short_it++;
+    }
 }
 
-bool Initializer::flag(std::string s) {
-	return _longflags.find(s) != _longflags.end();
+void Initializer::event(event_t event, optFunc function) {
+    _arg_funcs[event] = function;
 }
 
-Initializer::extras_map Initializer::extras(char c) {
-	for(extras_iterator it = _shortflagextras[c].begin(); it != _shortflagextras[c].end(); it++)
-		_unusedextras.erase(it->first);
-	return _shortflagextras[c];
+error_t Initializer::parse() {
+    struct argp_option opt = {0};
+    _arg_opts.push_back(opt);
+    _argp.options = _arg_opts.data();
+    error_t status = argp_parse(&_argp,_argc,_argv,ARGP_IN_ORDER,0,this);
+    if(status)
+        perror("argp_parse():");
+    _arg_opts.pop_back();
+    return status;
 }
 
-Initializer::extras_map Initializer::extras(std::string s) {
-	for(extras_iterator it = _longflagextras[s].begin(); it != _longflagextras[s].end(); it++)
-		_unusedextras.erase(it->first);
-	return _longflagextras[s];
+int Initializer::argp_funcall(int key, char* arg, state* state) {
+    auto finder = _arg_funcs.find(key);
+    if(finder != _arg_funcs.end())
+        return finder->second(arg,state);
+    else
+        return UNKNOWN;
 }
 
-Initializer::extras_map Initializer::extras() {
-	return _unusedextras;
+void Initializer::usage(state* state) {
+    argp_usage(state);
 }
 
-std::string Initializer::reportUnused() {
-	std::stringstream ss;
-	for(extras_iterator it = _unusedextras.begin();
-			it != _unusedextras.end();
-			it++)
-    ss << "Ignored argument " << it->second << '\n';
-	return ss.str();
+void Initializer::error(state* state, const char* msg) {
+    argp_error(state, msg, "");
 }
 
-std::string Initializer::pre_path(const char* c)
-{
-    std::string path(c);
-    size_t path_end = path.rfind('/') + 1;
-    return path.substr(0,path_end);
+void Initializer::error(state* state, const char* msg, const char* arg) {
+    argp_error(state, msg, arg);
 }

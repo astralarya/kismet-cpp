@@ -1,9 +1,20 @@
-// Options.h
-// Mara Kim
+// Options.cpp
 //
-// A singleton class which reads a
-// configuration file and provides
-// the values to the program
+// Copyright (C) 2013 Mara Kim
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program. If not, see http://www.gnu.org/licenses/.
+
 
 #include "Options.h"
 #include "OptionsParser.h"
@@ -17,10 +28,22 @@ Options* Options::Instance()
     if(!_Instance) // if there is no instance of the class
     {
         _Instance = new Options;
-        _Instance->_initialize();
     }
 
     return _Instance;
+}
+
+Options::Options():
+_properties(),
+_modes() {
+    std::string file = exe_path() + OPTIONS_FILE;
+    std::ifstream options_file(file);
+    if(options_file.is_open()) {
+        OptionsParser p(*this, options_file);
+        p.parse();
+        options_file.close();
+    } else
+        std::cerr << "Cannot read OPTIONS_FILE: " << file << std::endl;
 }
 
 std::string Options::exe_path()
@@ -33,24 +56,7 @@ std::string Options::exe_path()
     return path.substr(0,path_end);
 }
 
-Options::Options():
-_modes()
-{
-}
-
-void Options::_initialize()
-{
-    std::ifstream options_file(exe_path() + OPTIONSFILE);
-    if(options_file.is_open()) {
-        OptionsParser p(this, options_file);
-        p.parse();
-        options_file.close();
-    }
-}
-
 void Options::_new(const Mode::type_map& properties)
 {
     _properties = properties;
-    for(auto mode = _modes.begin(); mode != _modes.end(); mode++)
-        mode->second->_initialize(_properties);
 }
