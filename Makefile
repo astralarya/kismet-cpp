@@ -1,27 +1,45 @@
-# Mara Kim
+# c++project
+# a Makefile to manage a c++ project
 #
+# Copyright (C) 2013 Mara Kim
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program. If not, see http://www.gnu.org/licenses/.
+
 # to compile, in a shell:
 # make
+
 
 # project specific
 
 EXECUTABLE=kismet
 VERSION=0.5
-CFLAGS=-std=c++0x -g
+BUG_ADDRESS=mara@autochthe.net
+CFLAGS=-std=gnu++0x 
 LDFLAGS=-lreadline
-DOXFILE=
-OPTIONSFILE=$(EXECUTABLE).options
+DOXFILE=Doxyfile
+LICENSE_FILE=LICENSE.txt
+OPTIONS_FILE=OPTIONS.rc
 REVISION_FILE=VERSION.log
 MISC=README.md .gitignore
+
 
 # environment specific
 
 GIT=git
 SED=sed
-TR=tr
-HEAD=head
-TAIL=tail
-ECHO=echo
+AWK=awk
+PRINTF=printf
 TAR=tar
 CXX=g++
 LEX=flexc++
@@ -36,35 +54,51 @@ ME=Makefile
 
 # macros
 
+MANIFEST=$(SOURCES) $(HEADERS) $(LEXFILE) $(YACCFILE) $(EXTRA) $(DOXFILE) $(OPTIONS_FILE) $(REVISION_FILE) $(LICENSE_FILE) $(MISC) $(ME)
+EXTRA=$(LEXFILE:.l=Scanner.h) $(LEXFILE:.l=Scanner.ih) $(YACCFILE:.y=Parser.h) $(YACCFILE:.y=Parser.ih) $(YACCFILE:.y=.types.h)
+
 LEXFILE=$(wildcard *.l)
 YACCFILE=$(wildcard *.y)
+GENERATEDH=$(LEXFILE:.l=Scannerbase.h) $(YACCFILE:.y=Parserbase.h)
+GENERATEDC=$(LEXFILE:.l=Scanner.cc) $(YACCFILE:.y=Parser.cc)
+
 SOURCES=$(wildcard *.cpp)
 HEADERS=$(wildcard *.h)
 OBJECTS=$(SOURCES:.cpp=.o) $(GENERATEDC:.cc=.o)
 DEPENDENCIES=$(OBJECTS:.o=.d)
-EXTRA=$(LEXFILE:.l=Scanner.h) $(LEXFILE:.l=Scanner.ih) $(YACCFILE:.y=Parser.h) $(YACCFILE:.y=Parser.ih) $(YACCFILE:.y=.types.h)
-GENERATEDH=$(LEXFILE:.l=Scannerbase.h) $(YACCFILE:.y=Parserbase.h)
-GENERATEDC=$(LEXFILE:.l=Scanner.cc) $(YACCFILE:.y=Parser.cc)
-MANIFEST=$(SOURCES) $(HEADERS) $(LEXFILE) $(YACCFILE) $(EXTRA) $(DOXFILE) $(OPTIONSFILE) $(REVISION_FILE) $(MISC) $(ME)
-HASH=$(shell $(HEAD) -n 1 $(REVISION_FILE))
-STATUS=\#\# $(shell $(TAIL) -n +2 $(REVISION_FILE) | $(SED) -e '$$ ! s/$$/\\n/' | $(TR) -d '\n')
+LICENSE=$(shell $(AWK) '{gsub(/["\\]/,"\\\\&");gsub(/\47/,"\\047")} {if (NR==1) printf "%s",$$0; else printf "\\n%s",$$0}' $(LICENSE_FILE))
+GIT_HASH=$(shell $(AWK) 'NR==1 {printf "%s\\n",$$0}' $(REVISION_FILE))
+GIT_STATUS=$(shell $(AWK) '/^$$/ {exit 0} {gsub(/["\\]/,"\\\\&");gsub(/\47/,"\\047")} {if (NR>2) printf "%s\\n",$$0; else if (NR==2) printf "\#\# %s\\n",$$0}' $(REVISION_FILE))
+GIT_DIFF=$(shell $(AWK) 'BEGIN {flag=0} /^$$/ {flag=1} {if (flag==2) {gsub(/["\\]/,"\\\\&");gsub(/\47/,"\\047"); printf "%s\\n",$$0} else if (flag==1) flag=2}' $(REVISION_FILE))
 
 # rules
 
-all: hash $(MAIN) $(SOURCES) $(HEADERS) $(LEXFILE) $(YACCFILE) $(EXTRA) $(EXECUTABLE)
+build: hash $(SOURCES) $(HEADERS) $(EXTRA) $(EXECUTABLE)
 
-rebuild: clean hash all
+help:
+	@$(PRINTF) '%b\n'\
+	 '\n$(EXECUTABLE) $(VERSION)\n'\
+	 'make build		- build project'\
+	 'make clean		- delete generated files'\
+	 'make rebuild		- clean and build'\
+	 'make tar		- package project'\
+	 'make dox		- generate and view documentation'\
+	 ''\
+
+rebuild: clean build
 
 name:
-	@$(ECHO) $(EXECUTABLE)
+	@$(PRINTF) '$(EXECUTABLE)\n'
 
 hash $(REVISION_FILE):
-	@$(GIT) rev-parse && $(GIT) rev-parse HEAD > $(REVISION_FILE) && $(GIT) rev-parse --abbrev-ref HEAD >> $(REVISION_FILE) && $(GIT) status --porcelain >> $(REVISION_FILE) && $(ECHO) 'Generate hash' || $(ECHO) 'Using stored hash'
+	@$(GIT) rev-parse 2> /dev/null && $(GIT) rev-parse HEAD > $(REVISION_FILE) &&\
+	 $(GIT) rev-parse --abbrev-ref HEAD >> $(REVISION_FILE) &&\
+	 $(GIT) status --porcelain >> $(REVISION_FILE) && $(PRINTF) '\n' >> $(REVISION_FILE) &&\
+	 $(GIT) diff >> $(REVISION_FILE) && $(PRINTF) 'Generate hash\n' || $(PRINTF) 'Using stored hash\n'
 	@[ -e $(REVISION_FILE) ]
 
 tar: hash $(MANIFEST)
-	$(RM) $(EXECUTABLE)_*.tar.gz
-	$(TAR) --transform 's,^,$(EXECUTABLE)_$(VERSION)/,' -pczf $(EXECUTABLE)_$(VERSION).tar.gz $(MANIFEST)
+	$(TAR) --transform 's,^,$(NAME)_$(VERSION)/,' -pczf $(NAME)_$(VERSION).tar.gz $(MANIFEST)
 
 dox: $(DOXINDEX)
 	$(FF) $(DOXINDEX)
@@ -78,29 +112,21 @@ clean:
 cleanall: clean
 	$(RM) -rf $(EXECUTABLE)*.tar.gz html latex *~
 
-.PHONY: all again rebuild name hash tar dox doxbuild clean cleanall
+.PHONY: build rebuild name hash tar dox doxbuild clean cleanall
 
 
 $(EXECUTABLE): $(GENERATEDH) $(GENERATEDC) $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $@ $(LDFLAGS)
 
-$(DOXINDEX): $(MAIN) $(SOURCES) $(HEADERS) $(GENERATED)
+$(DOXINDEX): $(SOURCES) $(HEADERS) $(GENERATED)
 	$(DOX) $(DOXFILE)	
 
 # pull in dependency info for *existing* .o files
 -include $(DEPENDENCIES)
 
-main.o: main.cpp $(REVISION_FILE)
-	$(CXX) $(CFLAGS) -c $< -o $@ -D PROGRAM_NAME='"$(EXECUTABLE)"' -D SOURCE_VERSION='"$(VERSION)"' -D REVISION_HASH='"$(HASH)"' -D REVISION_STATUS='"$(STATUS)"'
-	@$(CXX) -MM $(CFLAGS) $*.cpp > $*.d
-	@mv -f $*.d $*.d.tmp
-	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
-	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
-	@rm -f $*.d.tmp
-
-Options.o: Options.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@ -D OPTIONSFILE='"$(OPTIONSFILE)"'
+# Compile info into executable
+Info.o: Info.cpp $(REVISION_FILE)
+	$(CXX) $(CFLAGS) -c $< -o $@ -D __PROGRAM_NAME='"$(EXECUTABLE)"' -D __PROGRAM_VERSION='"$(VERSION)"' -D __REVISION_HASH='"$(GIT_HASH)"' -D __REVISION_STATUS='"$(GIT_STATUS)"' -D __REVISION_DIFF='"$(GIT_DIFF)"' -D __PROGRAM_BUG_ADDRESS='"$(BUG_ADDRESS)"' -D __PROGRAM_LICENSE='"$(LICENSE)"' -D __OPTIONS_FILE='"$(OPTIONS_FILE)"'
 	@$(CXX) -MM $(CFLAGS) $*.cpp > $*.d
 	@mv -f $*.d $*.d.tmp
 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
@@ -134,6 +160,9 @@ Options.o: Options.cpp
 	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
 	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
 	@rm -f $*.d.tmp
+
+
+## flexc++ bisonc++
 
 %Parser.cc: %.y
 	$(YACC) $(YACCFLAGS) $<

@@ -18,6 +18,12 @@ _root(std::move(root)), _label(label), _roll() {
 Roll::~Roll() {
 }
 
+const Roll& Roll::operator=(const Roll& rhs) {
+    _root=std::move(rhs._root);
+    _label = rhs._label;
+    _roll = rhs._roll;
+}
+
 Roll::dice_roll Roll::roll() {
     if(_root)
         _roll = _root->roll();
@@ -43,7 +49,7 @@ std::string Roll::print(bool full) const {
         if(_roll.size()>1)
             ss << '\n';
         // Build report
-        if(!Options::Instance()->get(INTERACTIVE) || it->report.size() < Options::Instance()->get(SHORT_REPORT_CUTOFF) || full)
+        if(!Options::Instance()->get(Project::INTERACTIVE) || it->report.size() < Options::Instance()->get(Project::SHORT_REPORT_CUTOFF) || full)
             ss << it->report;
         else
             abbrev = true;
@@ -54,9 +60,9 @@ std::string Roll::print(bool full) const {
     }
     if(abbrev) {
         ss << "\nTAB for report";
-        Options::Instance()->set(FULL_REPORT,print(true));
+        Options::Instance()->set(Project::FULL_REPORT,print(true));
     } else
-        Options::Instance()->set(FULL_REPORT,"");
+        Options::Instance()->set(Project::FULL_REPORT,"");
     return ss.str();
 }
 

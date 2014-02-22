@@ -31,12 +31,12 @@ int Dice::roll(const Dice::roll_type& roll) {
     std::uniform_int_distribution<unsigned int> distribution(1,roll.die);
     // roll dice
     std::multiset<unsigned int> set;
-    for(int i = 0; i < roll.times; i++)
+    for(unsigned int i = 0; i < roll.times; i++)
         set.insert(distribution(Dice::Generator()));
     // calculate result
-    int result = 0,
-        pos = 0,
-        top = set.size()-roll.high;
+    int result = 0;
+    unsigned int pos = 0,
+                 top = set.size()-roll.high;
     for(auto it = set.begin(); it != set.end() && pos < top; it++) {
         if(pos >= (roll.low))
             result += *it;
@@ -88,7 +88,7 @@ Dice::result_set Dice::roll_set(const Dice::roll_type& roll) {
                                              keep, // map of roll order to results
                                              drop; // map of roll order to results
     std::uniform_int_distribution<unsigned int> distribution(1,roll.die);
-    for(int i = 0; i < roll.times; i++)
+    for(unsigned int i = 0; i < roll.times; i++)
         rolls.insert(std::pair<unsigned int, unsigned int>(distribution(Dice::Generator()),i));
     // perform drops
     int pos = 0,

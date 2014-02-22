@@ -41,7 +41,7 @@ void Personality::respond_name() {
 }
 
 void Personality::respond_newline() {
-    if(Options::Instance()->get(PERSONALITY) && _trigger_count > 0 && _seed.size()) {
+    if(Options::Instance()->get(Project::PERSONALITY) && _trigger_count > 0 && _seed.size()) {
         std::hash<std::string> hash;
         unsigned seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
         seed = seed%hash(_seed);

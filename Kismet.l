@@ -20,7 +20,7 @@ MULTILINECOMMENT_E      "*/"
 /* rules */
 %%
 
-^[[:space:]]*[eE][xX][iI][tT][[:space:]]*$       if(Options::Instance()->get(INTERACTIVE)) return EOF; // Interactive exit
+^[[:space:]]*[eE][xX][iI][tT][[:space:]]*$       if(Options::Instance()->get(Project::INTERACTIVE)) return EOF; // Interactive exit
 {LINECOMMENT_S}.*
 
 {MULTILINECOMMENT_S}    begin(StartCondition__::MULTILINECOMMENT);
@@ -35,7 +35,7 @@ MULTILINECOMMENT_E      "*/"
     .                   /* empty */
     \n                  return KismetParser::NEWLINE;
 }
-"]"                     if(Options::Instance()->get(REACTIVE)) begin(StartCondition__::WAITING);
+"]"                     if(Options::Instance()->get(Project::REACTIVE)) begin(StartCondition__::WAITING);
 
 [dD](%|[[:digit:]]+)    return KismetParser::DIE;
 [[:digit:]]+/[dD]       return KismetParser::COUNT;

@@ -41,7 +41,7 @@ size_t KismetScannerBase::Input::next() {
         // deque empty: next char fm d_in
         if(d_in == 0)
             return AT_EOF;
-        if(Options::Instance()->get(INTERACTIVE)) {
+        if(Options::Instance()->get(Project::INTERACTIVE)) {
             if(::Prompt::eof()) {
                 return AT_EOF;
             }

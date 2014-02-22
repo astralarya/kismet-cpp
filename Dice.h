@@ -40,7 +40,7 @@ public:
         unsigned int low;
 
         roll_type():
-        die(Options::Instance()->get(DEFAULT_DIE)),
+        die(Options::Instance()->get(Project::DEFAULT_DIE)),
         times(1),
         high(0),
         low(0) {}

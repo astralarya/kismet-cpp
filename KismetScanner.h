@@ -38,7 +38,7 @@ inline KismetScanner::KismetScanner(std::istream &in, std::ostream &out)
 :
     KismetScannerBase(in, out)
 {
-    if(Options::Instance()->get(REACTIVE))
+    if(Options::Instance()->get(Project::REACTIVE))
         begin(StartCondition__::WAITING);
 }
 

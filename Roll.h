@@ -13,8 +13,10 @@ public:
     typedef RollNode::result_list dice_roll;
 
     Roll();
-    Roll(RollNode::ptr& root, std::string& label = Options::Instance()->get(DEFAULT_LABEL));
+    Roll(RollNode::ptr& root, std::string& label = Options::Instance()->get(Project::DEFAULT_LABEL));
     ~Roll();
+
+    const Roll& operator=(const Roll&);
 
     dice_roll roll();
     void setRoll(RollNode::ptr& root);

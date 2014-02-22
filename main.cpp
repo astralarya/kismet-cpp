@@ -1,115 +1,59 @@
 // main.cpp
-// Mara Kim
+// A main function that reports help and version info 
+//
+// Copyright (C) 2013 Mara Kim
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option) any later
+// version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program. If not, see http://www.gnu.org/licenses/.
 
-#ifndef PROGRAM_NAME
-#define PROGRAM_NAME
-#endif
-#ifndef SOURCE_VERSION
-#define SOURCE_VERSION
-#endif
-#ifndef REVISION_HASH
-#define REVISION_HASH
-#endif
-#ifndef REVISION_STATUS
-#define REVISION_STATUS
-#endif
 
 #include "Initializer.h"
 #include "Options.h"
 #include "KismetParser.h"
 #include <iostream>
 
-
-inline void printshorthelp()
-{
-    // output usage info
-    std::cout << "Usage: " << PROGRAM_NAME << '\n';
-}
-
-void printhelp() {
-    // output help
-    printshorthelp();
-    std::cout << "<Description>\n"
-                 "Option\t\tGNU long option\t\tMeaning\n"
-                 "-r\t\t--reactive\t\tReactive mode: wait for ..[] attention sequence; Default non-interactive\n"
-                 "-n\t\t--non-interactive\tNon-interactive mode\n"
-                 "-i\t\t--interactive\t\tForce interactive mode\n"
-                 "-h, -?\t\t--help\t\t\tShow this message. Secrets?\n"
-                 "-v\t\t--version\t\tOutput program version\n";
-}
-
-void printsecrets() {
-    printhelp();
-    std::cout << "-p\t\t--personality\t\tActivate personality\n"
-                 "-V\t\t--version-long\t\tOutput full program version\n";
-}
-
-void printversion() {
-    std::cout << PROGRAM_NAME << ' ' << SOURCE_VERSION << std::endl;
-}
-
-void printrevision() {
-    std::cout << REVISION_HASH << std::endl
-              << REVISION_STATUS << std::endl;
-}
-
-int main(int argc, const char* argv[]) {
-
+int main(int argc, char** argv) {
     // Initialize
-    Initializer init(argc, argv);
+    // argcount, argvector, argument usage, description
+    Initializer init(argc, argv, 0,
+                     "Dice roller with personality");
 
-    // process arguments
-    bool stop = false;
-    if(init.flag("version") ||
-       init.flag('v') ) {
-        // output version
-        printversion();
-        stop = true;
-    }
-    if(init.flag("version-long") ||
-       init.flag('V') ) {
-        // output revision
-        printversion();
-        printrevision();
-        stop = true;
-    }
-    if(init.flag("help") ||
-       init.flag('h')) {
-        printhelp();
-        stop = true;
-    }
-    if(init.flag('?')) {
-        printsecrets();
-        stop = true;
-    }
-    if(init.flag("reactive") ||
-       init.flag('r') ) {
-        // set reactive
-        Options::Instance()->set(REACTIVE,true);
-        Options::Instance()->set(INTERACTIVE,false);
-    }
-    if(init.flag("non-interactive") ||
-       init.flag('n') ) {
-        // set non-interactive, depersonalize
-        Options::Instance()->set(INTERACTIVE,false);
-        Options::Instance()->set(PERSONALITY,false);
-    }
-    if(init.flag("personality") ||
-       init.flag('p') ) {
-        Options::Instance()->set(PERSONALITY,true);
-    }
-    if(init.flag("interactive") ||
-       init.flag('i') ) {
-        // set interactive
-        Options::Instance()->set(INTERACTIVE,true);
-    }
+    // Describe options
+    init.option("reactive", 'r', 0, "Reactive mode: wait for ..[] attention sequence; Default non-interactive",
+                [&] (char* arg, Initializer::state* state) -> int {
+                    Options::Instance()->set(Project::REACTIVE,true);
+                    Options::Instance()->set(Project::INTERACTIVE,false);
+                    return 0;
+                });
+    init.option("non-interactive", 'n', 0, "Non-interactive mode",
+                [&] (char* arg, Initializer::state* state) -> int {
+                    // set non-interactive, depersonalize
+                    Options::Instance()->set(Project::INTERACTIVE,false);
+                    Options::Instance()->set(Project::PERSONALITY,false);
+                    return 0;
+                });
+    init.event(Initializer::END, // Check argument count
+               [&] (char* arg, Initializer::state* state) -> int {
+                   if(state->arg_num < 2)
+                       Initializer::usage(state);
+                   return 0;
+               });
 
-    if(stop) {
-        return 0;
-    }
+    // Parse arguments
+    init.parse();
 
     // Greet interactive
-    if(Options::Instance()->get(INTERACTIVE))
+    if(Options::Instance()->get(Project::INTERACTIVE))
         std::cout << "Greetings, human! I am Kismet <3\n"
                      "Input a roll and press ENTER.\n"
                      "Exit with 'exit' or CTRL-D." << std::endl;
@@ -119,7 +63,7 @@ int main(int argc, const char* argv[]) {
     kismet.parse();
 
     // close interactive
-    if(Options::Instance()->get(INTERACTIVE))
+    if(Options::Instance()->get(Project::INTERACTIVE))
         std::cout << "exit" << std::endl;
 
     return 0;
