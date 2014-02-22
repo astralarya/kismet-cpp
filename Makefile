@@ -1,5 +1,5 @@
-# c++project
-# a Makefile to manage a c++ project
+# Kismet
+# A dice roller with personality
 #
 # Copyright (C) 2013 Mara Kim
 #
@@ -25,7 +25,7 @@
 EXECUTABLE=kismet
 VERSION=0.5
 BUG_ADDRESS=mara@autochthe.net
-CFLAGS=-std=gnu++0x 
+CFLAGS=-std=gnu++0x -Wall -O3 -pedantic -Weffc++
 LDFLAGS=-lreadline
 DOXFILE=Doxyfile
 LICENSE_FILE=LICENSE.txt
@@ -42,8 +42,6 @@ AWK=awk
 PRINTF=printf
 TAR=tar
 CXX=g++
-LEX=flexc++
-YACC=bisonc++
 DOX=doxygen
 MV=mv
 RM=rm
@@ -54,13 +52,11 @@ ME=Makefile
 
 # macros
 
-MANIFEST=$(SOURCES) $(HEADERS) $(LEXFILE) $(YACCFILE) $(EXTRA) $(DOXFILE) $(OPTIONS_FILE) $(REVISION_FILE) $(LICENSE_FILE) $(MISC) $(ME)
-EXTRA=$(LEXFILE:.l=Scanner.h) $(LEXFILE:.l=Scanner.ih) $(YACCFILE:.y=Parser.h) $(YACCFILE:.y=Parser.ih) $(YACCFILE:.y=.types.h)
+MANIFEST=$(SOURCES) $(HEADERS) $(EXTRA) $(DOXFILE) $(OPTIONS_FILE) $(REVISION_FILE) $(LICENSE_FILE) $(MISC) $(ME)
+EXTRA=
 
-LEXFILE=$(wildcard *.l)
-YACCFILE=$(wildcard *.y)
-GENERATEDH=$(LEXFILE:.l=Scannerbase.h) $(YACCFILE:.y=Parserbase.h)
-GENERATEDC=$(LEXFILE:.l=Scanner.cc) $(YACCFILE:.y=Parser.cc)
+GENERATEDH=
+GENERATEDC=
 
 SOURCES=$(wildcard *.cpp)
 HEADERS=$(wildcard *.h)
@@ -161,17 +157,3 @@ Info.o: Info.cpp $(REVISION_FILE)
 	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
 	@rm -f $*.d.tmp
 
-
-## flexc++ bisonc++
-
-%Parser.cc: %.y
-	$(YACC) $(YACCFLAGS) $<
-
-%Scanner.cc: %.l
-	$(LEX) $(LEXFLAGS) $<
-
-%Parserbase.h: %.y
-	$(YACC) $(YACCFLAGS) $<
-
-%Scannerbase.h: %.l
-	$(LEX) $(LEXFLAGS) $<
