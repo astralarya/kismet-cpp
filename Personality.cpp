@@ -51,7 +51,7 @@ void Personality::respond_newline() {
         unsigned times = distribution(generator);
         times++;
         bool first = true;
-        for(int i = 0; i < times; i++) {
+        for(unsigned int i = 0; i < times; i++) {
             if(first)
                 first = false;
             else

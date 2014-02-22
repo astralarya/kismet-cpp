@@ -91,7 +91,7 @@ Dice::result_set Dice::roll_set(const Dice::roll_type& roll) {
     for(unsigned int i = 0; i < roll.times; i++)
         rolls.insert(std::pair<unsigned int, unsigned int>(distribution(Dice::Generator()),i));
     // perform drops
-    int pos = 0,
+    unsigned int pos = 0,
         top = rolls.size()-roll.high;
     for(auto it = rolls.begin(); it != rolls.end(); it++) {
         if(pos >= (roll.low) && pos < top)

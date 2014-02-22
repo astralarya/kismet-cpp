@@ -19,6 +19,7 @@ int readline_report(int count, int key) {
         Options::Instance()->set(Project::FULL_REPORT,"");
         std::cout << rl_line_buffer << std::flush;
     }
+    return 0;
 }
 
 void Prompt::_initialize() {

@@ -28,7 +28,7 @@
 /** Project enums */
 namespace Project {
     enum bool_mode{INTERACTIVE,REACTIVE,PERSONALITY};
-    enum int_mode{DEFAULT_DIE,SHORT_REPORT_CUTOFF};
+    enum unsigned_int_mode{DEFAULT_DIE,SHORT_REPORT_CUTOFF};
     enum string_mode{DEFAULT_LABEL,FULL_REPORT};
 }
 
@@ -39,8 +39,8 @@ struct Type<Project::string_mode> {
 };
 
 template <>
-struct Type<Project::int_mode> {
-    typedef int T;
+struct Type<Project::unsigned_int_mode> {
+    typedef unsigned int T;
 };
 
 template <>
@@ -74,11 +74,13 @@ template <>
 typename TypeInfo<bool_mode>::init_type TypeInfo<bool_mode>::init = false;
 
 template <>
-typename TypeInfo<int_mode>::key_type TypeInfo<int_mode>::keys {{DEFAULT_DIE, "DEFAULT_DIE"},{SHORT_REPORT_CUTOFF,"SHORT_REPORT_CUTOFF"}};
+typename TypeInfo<unsigned_int_mode>::key_type TypeInfo<unsigned_int_mode>::keys
+    {{DEFAULT_DIE, "DEFAULT_DIE"},{SHORT_REPORT_CUTOFF,"SHORT_REPORT_CUTOFF"}};
 template <>
-typename TypeInfo<int_mode>::defaults_type TypeInfo<int_mode>::defaults {{DEFAULT_DIE,{20}},{SHORT_REPORT_CUTOFF,{256}}};
+typename TypeInfo<unsigned_int_mode>::defaults_type TypeInfo<unsigned_int_mode>::defaults
+    {{DEFAULT_DIE,{20}},{SHORT_REPORT_CUTOFF,{256}}};
 template <>
-typename TypeInfo<int_mode>::init_type TypeInfo<int_mode>::init = 0;
+typename TypeInfo<unsigned_int_mode>::init_type TypeInfo<unsigned_int_mode>::init = 0;
 
 template <>
 typename TypeInfo<string_mode>::key_type TypeInfo<string_mode>::keys {{DEFAULT_LABEL, "DEFAULT_LABEL"}};

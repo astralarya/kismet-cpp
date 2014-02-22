@@ -295,6 +295,8 @@ char MathRollNode::opchar(mode m) {
         return '*';
     case DIV:
         return '/';
+    default:
+        return 0;
     }
 }
 double MathRollNode::opcalc(double first, double second, mode m) {
@@ -307,6 +309,8 @@ double MathRollNode::opcalc(double first, double second, mode m) {
         return first * second;
     case DIV:
         return first / second;
+    default:
+        return 0;
     }
 }
 

@@ -30,6 +30,8 @@ public:
     };
     typedef std::vector<unsigned int> num_vector;
     struct result_set {
+        result_set():rolls(),drops(){}
+
         num_vector rolls;
         num_vector drops;
     };

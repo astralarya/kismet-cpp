@@ -224,6 +224,8 @@ class MultiRollNode: public RollNode {
 public:
     typedef std::unique_ptr<MultiRollNode> ptr;
     struct modifier {
+        modifier():argument(),op(){}
+
         RollNode::ptr argument;
         MathRollNode::mode op;
 

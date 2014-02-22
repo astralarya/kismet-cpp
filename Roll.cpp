@@ -18,12 +18,6 @@ _root(std::move(root)), _label(label), _roll() {
 Roll::~Roll() {
 }
 
-const Roll& Roll::operator=(const Roll& rhs) {
-    _root=std::move(rhs._root);
-    _label = rhs._label;
-    _roll = rhs._roll;
-}
-
 Roll::dice_roll Roll::roll() {
     if(_root)
         _roll = _root->roll();

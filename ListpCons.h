@@ -110,24 +110,24 @@ public:
     // apply a scalar transformation to each atom
     // Func should take a const ListpCons::Atom& and return an ListpCons::Atom
     template<typename Func> void transform(const Func &func) {
-        if(_car)
+        if(_car) {
             if(_car->isAtom())
                _car = std::move(ptr(new ListpCons(func(_car->atom()))));
             else
                _car->transform(func);
-        if(_cdr)
+        } if(_cdr)
             _cdr->transform(func);
     }
 
     // map each atom against a list
     // Func should take an const ListpCons::Atom& and return a ListpCons::ptr
     template<typename Func> void map(const Func &func) {
-        if(_car)
+        if(_car) {
             if(_car->isAtom())
                _car = func(_car->atom());
             else
                _car->map(func);
-        if(_cdr)
+        } if(_cdr)
             _cdr->map(func);
     }
 
