@@ -6,3 +6,4 @@ VERSION.log
 *.cc
 *Parserbase.h
 *Scannerbase.h
+.*.swp
