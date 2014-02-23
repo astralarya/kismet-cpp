@@ -42,12 +42,6 @@ int main(int argc, char** argv) {
                     Options::Instance()->set(Project::PERSONALITY,false);
                     return 0;
                 });
-    init.event(Initializer::END, // Check argument count
-               [&] (char* arg, Initializer::state* state) -> int {
-                   if(state->arg_num < 2)
-                       Initializer::usage(state);
-                   return 0;
-               });
 
     // Parse arguments
     init.parse();
