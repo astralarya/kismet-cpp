@@ -1,21 +1,21 @@
-// KismetInput.cppi
+// KismetInput.cpp
 // Mara Kim
 //
 // An interactive prompt for KismetScanner
 
 
-KismetScannerBase::Input::Input():
+KismetInput::Input():
 d_in(0),
 d_lineNr(1) {
 }
 
-KismetScannerBase::Input::Input(std::istream *iStream, size_t lineNr):
+KismetInput::Input(std::istream *iStream, size_t lineNr):
 d_in(iStream),
 d_lineNr(lineNr) {
 }
 
 
-size_t KismetScannerBase::Input::get() {
+size_t KismetInput::get() {
     // get the next input char
     switch (size_t ch = next()) {
     case '\n':
@@ -34,7 +34,7 @@ size_t KismetScannerBase::Input::get() {
     }
 }
 
-size_t KismetScannerBase::Input::next() {
+size_t KismetInput::next() {
     size_t ch;
 
     if(d_deque.empty()) {
@@ -73,13 +73,13 @@ size_t KismetScannerBase::Input::next() {
     return ch;
 }
 
-std::string KismetScannerBase::Input::prompt() {
+std::string KismetInput::prompt() {
     std::stringstream ss;
     ss << d_lineNr << "> ";
     return ss.str();
 }
 
-void KismetScannerBase::Input::reRead(size_t ch) {
+void KismetInput::reRead(size_t ch) {
     if(ch < 0x100) {
         if(ch == '\n')
             --d_lineNr;
@@ -87,16 +87,16 @@ void KismetScannerBase::Input::reRead(size_t ch) {
     }
 }
 
-void KismetScannerBase::Input::reRead(std::string const &str, size_t fm) {
+void KismetInput::reRead(std::string const &str, size_t fm) {
     for (size_t idx = str.size(); idx-- > fm; )
         reRead(str[idx]);
 }
 
-size_t KismetScannerBase::Input::lineNr() const {
+size_t KismetInput::lineNr() const {
     return d_lineNr;
 }
 
-void KismetScannerBase::Input::close() {
+void KismetInput::close() {
     // Force closing the stream
     delete d_in;
     // switchStreams also closes

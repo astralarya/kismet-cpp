@@ -6,7 +6,7 @@
 #ifndef PROMPT_H
 #define PROMPT_H
 
-class Input {
+class KismetInput {
 public:
     Input();
     Input(std::istream *iStream, size_t lineNr = 1); // dynamically allocated iStream
