@@ -8,8 +8,10 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-bool Prompt::_ready = false;
-bool Prompt::_eof = false;
+std::string Prompt::_prompt = "> ";
+bool Prompt::_ready = false,
+     Prompt::_eof = false;
+unsigned Prompt::_linecount = 0;
 
 int readline_report(int count, int key) {
     std::string report(Options::Instance()->get(Project::FULL_REPORT));
@@ -27,11 +29,14 @@ void Prompt::_initialize() {
     _ready = true;
 }
 
-std::string Prompt::readline(const std::string& prompt) {
+std::string Prompt::readline() {
+    // Form prompt
+    _linecount++;
+
     if(!_ready)
         Prompt::_initialize();
     std::string line;
-    char* read = ::readline(prompt.c_str());
+    char* read = ::readline(Prompt::prompt().c_str());
     if(read) {
         auto last_command = ::history_get(::history_length);
         if(*read) {
@@ -53,4 +58,10 @@ std::string Prompt::readline(const std::string& prompt) {
 
 bool Prompt::eof() {
     return _eof;
+}
+
+std::string Prompt::prompt() {
+    std::stringstream ss;
+    ss << _linecount << _prompt;
+    return ss.str();
 }
