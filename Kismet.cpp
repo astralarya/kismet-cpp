@@ -3,21 +3,23 @@
 
 int Kismet::parse(std::istream& istream) {
     std::string line;
-    while(std::getline(istream,line)) {
-        parseline(line);
+    int status = 0;
+    while(!status && std::getline(istream,line)) {
+        status = parseline(line);
     }
     return 0;
 }
 
 int Kismet::parse() {
     std::string line;
-    while(!_prompt.eof()) {
+    int status = 0;
+    while(!status && !_prompt.eof()) {
         line = _prompt.readline();
         if(line.empty()) {
             if(_lastline.size())
-                parseline(_lastline);
+                status = parseline(_lastline);
         } else {
-            parseline(line);
+            status = parseline(line);
             _lastline = line;
         }
     }
