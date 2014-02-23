@@ -10,11 +10,15 @@
 
 class Kismet {
 public:
+    Kismet():_prompt(),_lastline(){}
+
     int parse(std::istream&);
     int parse();
 private:
     int parseline(const std::string&);
+
     Prompt _prompt;
+    std::string _lastline;
 };
 
 #endif // KISMET_H

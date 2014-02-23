@@ -13,11 +13,21 @@ int Kismet::parse() {
     std::string line;
     while(!_prompt.eof()) {
         line = _prompt.readline();
-        parseline(line);
+        if(line.empty()) {
+            if(_lastline.size())
+                parseline(_lastline);
+        } else {
+            parseline(line);
+            _lastline = line;
+        }
     }
     return 0;
 }
 
 int Kismet::parseline(const std::string& line) {
+
+    std::cout << std::endl;
+    
+
     return 0;
 }
