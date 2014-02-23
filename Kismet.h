@@ -13,6 +13,8 @@ public:
     Kismet():_prompt(),_lastline(){}
 
     int parse(std::istream&);
+
+    // Interactive prompt
     int parse();
 private:
     int parseline(const std::string&);

@@ -19,6 +19,8 @@ int Kismet::parse() {
             if(_lastline.size())
                 status = parseline(_lastline);
         } else {
+            if(line == "exit")
+                return -1;
             status = parseline(line);
             _lastline = line;
         }
