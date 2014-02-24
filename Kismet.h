@@ -4,6 +4,7 @@
 #ifndef KISMET_H
 #define KISMET_H
 
+#include "KismetParser.h"
 #include "Prompt.h"
 #include <istream>
 

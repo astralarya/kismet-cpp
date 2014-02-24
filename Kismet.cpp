@@ -29,9 +29,6 @@ int Kismet::parse() {
 }
 
 int Kismet::parseline(const std::string& line) {
-
-    std::cout << std::endl;
-    
-
+    KismetParser::parse(line);
     return 0;
 }
