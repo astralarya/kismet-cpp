@@ -36,19 +36,19 @@ public:
         num_vector drops;
     };
     struct roll_type {
-        unsigned int die;
         unsigned int times;
+        unsigned int die;
         unsigned int high;
         unsigned int low;
 
         roll_type():
-        die(Options::Instance()->get(Project::DEFAULT_DIE)),
         times(1),
+        die(Options::Instance()->get(Project::DEFAULT_DIE)),
         high(0),
         low(0) {}
         roll_type(unsigned int die):
-        die(die),
         times(1),
+        die(die),
         high(0),
         low(0) {}
     };
