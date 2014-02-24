@@ -16,8 +16,6 @@ public:
     Roll(RollNode::ptr& root, std::string& label = Options::Instance()->get(Project::DEFAULT_LABEL));
     ~Roll();
 
-    const Roll& operator=(const Roll&);
-
     dice_roll roll();
     void setRoll(RollNode::ptr& root);
     const dice_roll& result() const;
