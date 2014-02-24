@@ -9,19 +9,24 @@
 #include <boost/config/warning_disable.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 
 namespace KismetParser {
     bool parse(const std::string&);
 
     template <typename Iterator>
-    struct roll_parser : boost::spirit::qi::grammar<Iterator, Dice::roll_type()> {
+    struct roll_parser : boost::spirit::qi::grammar<Iterator, RollNode::ptr()> {
         roll_parser() : roll_parser::base_type(start), start(),
+        dieroll(),
         times(), die(), drop_high(), drop_low() {
             using boost::spirit::qi::eps;
             using boost::spirit::qi::lit;
+            using boost::phoenix::construct;
+            using boost::phoenix::new_;
             using boost::spirit::qi::_val;
             using boost::spirit::qi::_1;
+            using boost::spirit::qi::_2;
             using boost::spirit::qi::uint_;
             using boost::spirit::qi::ascii::char_;
 
@@ -39,13 +44,21 @@ namespace KismetParser {
                 ((char_('l')|'L') >> (uint_ | eps[_val=1]))
                 | eps[_val=0];
 
-            start %= times
+            dieroll %= times
                     >> die
                     >> drop_high
                     >> drop_low;
+
+            start = dieroll[_val = construct<RollNode::ptr>(new_<DiceRollNode>(_1))];
         }
 
-        boost::spirit::qi::rule<Iterator, Dice::roll_type()> start;
+        ~roll_parser(){}
+
+        boost::spirit::qi::rule<Iterator, RollNode::ptr()>
+            start;
+
+        boost::spirit::qi::rule<Iterator, Dice::roll_type()>
+            dieroll;
 
         boost::spirit::qi::rule<Iterator, unsigned()>
             times,

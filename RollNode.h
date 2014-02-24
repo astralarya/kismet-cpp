@@ -13,7 +13,7 @@
 class RollNode {
 public:
     /// TYPES ///
-    typedef std::unique_ptr<RollNode> ptr;
+    typedef std::shared_ptr<RollNode> ptr;
     struct atom {
         // Variables
         std::string name;
@@ -112,11 +112,11 @@ public:
 
 class DiceRollNode: public RollNode {
 public:
-    typedef std::unique_ptr<DiceRollNode> ptr;
+    typedef std::shared_ptr<DiceRollNode> ptr;
     typedef std::vector<Dice::result_set> result_set;
     DiceRollNode();
     DiceRollNode(const Dice::roll_type& dice);
-    DiceRollNode(const unsigned int die);
+    DiceRollNode(const unsigned die);
     Dice::roll_type& getDie();
     const Dice::roll_type& getDie() const;
     virtual RollNode::ptr copy() const;
@@ -137,7 +137,7 @@ protected:
 
 class ConstRollNode: public RollNode {
 public:
-    typedef std::unique_ptr<ConstRollNode> ptr;
+    typedef std::shared_ptr<ConstRollNode> ptr;
     ConstRollNode(double value);
     ConstRollNode(std::string name);
     ConstRollNode(std::string name,double value);
@@ -176,7 +176,7 @@ protected:
 
 class ExprDiceRollNode: public RollNode {
 public:
-    typedef std::unique_ptr<ExprDiceRollNode> ptr;
+    typedef std::shared_ptr<ExprDiceRollNode> ptr;
     ExprDiceRollNode(RollNode::ptr expr);
     ExprDiceRollNode(RollNode::ptr expr, DiceRollNode::ptr dice);
     RollNode::ptr copy() const;
@@ -191,7 +191,7 @@ protected:
 
 class MathRollNode: public RollNode {
 public:
-    typedef std::unique_ptr<MathRollNode> ptr;
+    typedef std::shared_ptr<MathRollNode> ptr;
     enum mode {ADD,SUB,MULT,DIV};
     MathRollNode(RollNode::ptr first, RollNode::ptr second, const mode op);
     MathRollNode(RollNode* first, RollNode* second, const mode op);
@@ -209,7 +209,7 @@ protected:
 
 class ParensRollNode: public RollNode {
 public:
-    typedef std::unique_ptr<ParensRollNode> ptr;
+    typedef std::shared_ptr<ParensRollNode> ptr;
     ParensRollNode(RollNode::ptr node);
     RollNode::ptr copy() const;
     result_list roll();
@@ -222,7 +222,7 @@ protected:
 
 class MultiRollNode: public RollNode {
 public:
-    typedef std::unique_ptr<MultiRollNode> ptr;
+    typedef std::shared_ptr<MultiRollNode> ptr;
     struct modifier {
         modifier():argument(),op(){}
 
@@ -252,7 +252,7 @@ protected:
 
 class ListRollNode: public RollNode {
 public:
-    typedef std::unique_ptr<ListRollNode> ptr;
+    typedef std::shared_ptr<ListRollNode> ptr;
     typedef std::vector<RollNode::ptr> node_list;
 
     ListRollNode();

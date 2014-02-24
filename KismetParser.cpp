@@ -8,8 +8,8 @@ bool KismetParser::parse(const std::string& line) {
     auto iter = line.begin(),
          end = line.end();
     roll_parser<std::string::const_iterator> parser;
-    bool r = parse(iter, end, parser, roll);
-    RollNode::ptr node(new DiceRollNode(roll));
+    RollNode::ptr node;
+    bool r = parse(iter, end, parser, node);
     Roll roll_ob(node);
     
     roll_ob.roll();
