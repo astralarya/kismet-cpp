@@ -22,6 +22,7 @@ public:
         // Functions
         atom(std::string name,double value):
         name(name),value(value),null(false) {}
+
         atom(double value):
         name(),value(value),null(false) {
             std::stringstream ss;
@@ -30,6 +31,10 @@ public:
         }
         atom(std::string name):
         name(name),value(0),null(true) {}
+
+        atom(std::vector<char> name):
+        name(name.begin(),name.end()),value(0),null(true) {}
+
         atom():
         name(),value(0),null(true) {}
     };

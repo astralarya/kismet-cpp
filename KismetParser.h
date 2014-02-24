@@ -18,7 +18,8 @@ namespace KismetParser {
     template <typename Iterator>
     struct roll_parser : boost::spirit::qi::grammar<Iterator, RollNode::ptr()> {
         roll_parser() : roll_parser::base_type(start), start(),
-        dieroll(),
+        leafnode(),
+        dieroll(),atom(),
         times(), die(), drop_high(), drop_low() {
             using boost::spirit::qi::eps;
             using boost::spirit::qi::lit;
@@ -49,16 +50,26 @@ namespace KismetParser {
                     >> drop_high
                     >> drop_low;
 
-            start = dieroll[_val = construct<RollNode::ptr>(new_<DiceRollNode>(_1))];
+            atom = uint_ [_val = construct<RollNode::atom>(_1)]
+                 | (*char_)[_val = construct<RollNode::atom>(_1)];
+
+            leafnode = dieroll[_val = construct<RollNode::ptr>(new_<DiceRollNode>(_1))]
+                    | atom[_val = construct<RollNode::ptr>(new_<ConstRollNode>(_1))];
+
+            start %= leafnode;
         }
 
         ~roll_parser(){}
 
         boost::spirit::qi::rule<Iterator, RollNode::ptr()>
-            start;
+            start,
+            leafnode;
 
         boost::spirit::qi::rule<Iterator, Dice::roll_type()>
             dieroll;
+
+        boost::spirit::qi::rule<Iterator, RollNode::atom()>
+            atom;
 
         boost::spirit::qi::rule<Iterator, unsigned()>
             times,
