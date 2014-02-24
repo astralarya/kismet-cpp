@@ -31,16 +31,20 @@ namespace KismetParser {
                            | lit('%')[_val = 100]
                          );
 
-            drop_high %= 'h' >> (uint_ | eps[_val=0]);
+            drop_high %=
+                ((char_('h')|'H') >> (uint_ | eps[_val=1]))
+                | eps[_val=0];
 
-            drop_low %= 'l' >> uint_ | eps[_val=0];
+            drop_low %=
+                ((char_('l')|'L') >> (uint_ | eps[_val=1]))
+                | eps[_val=0];
 
             start %= times
                     >> die
                     >> drop_high
                     >> drop_low;
-
         }
+
         boost::spirit::qi::rule<Iterator, Dice::roll_type()> start;
 
         boost::spirit::qi::rule<Iterator, unsigned()>
@@ -48,6 +52,11 @@ namespace KismetParser {
             die,
             drop_high,
             drop_low;
+    };
+
+    template <typename Iterator>
+    struct expr_parser : boost::spirit::qi::grammar<Iterator, Dice::roll_type()> {
+
     };
 }
 
@@ -58,6 +67,5 @@ BOOST_FUSION_ADAPT_STRUCT(
     (unsigned, high)
     (unsigned, low)
 )
-
 
 #endif // KISMETPARSER_H
