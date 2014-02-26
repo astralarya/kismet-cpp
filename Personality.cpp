@@ -5,8 +5,9 @@
 
 #include "Personality.h"
 
-unsigned int Personality::_trigger_count = 0;
-std::string Personality::_seed = "";
+unsigned int Personality::_trigger_count(0);
+std::string Personality::_seed("");
+boost::regex Personality::_matcher("[kK]+[iI|]+[sS]+[mM]+[eE]+[tT]+");
 
 Personality::response_pool Personality::_name_response
    {"<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3",
@@ -64,6 +65,11 @@ void Personality::respond_newline() {
     _seed.clear();
 }
 
-void Personality::set_seed(std::string seed) {
+void Personality::set_seed(const std::string& seed) {
     _seed = seed;
+    boost::sregex_iterator it(seed.begin(),seed.end(),_matcher),
+                           null_it;
+    std::for_each(it,null_it, [&](const boost::match_results<std::string::const_iterator>& what) {
+                                  _trigger_count++;
+                              });
 }
