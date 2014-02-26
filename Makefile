@@ -26,7 +26,7 @@ EXECUTABLE=kismet
 VERSION=0.5
 BUG_ADDRESS=mara@autochthe.net
 CFLAGS=-std=gnu++0x -Wall -O3 -pedantic -Weffc++
-LDFLAGS=-lreadline
+LDFLAGS=-lreadline -lboost_regex
 DOXFILE=Doxyfile
 LICENSE_FILE=LICENSE.txt
 OPTIONS_FILE=OPTIONS.rc
