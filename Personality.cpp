@@ -37,10 +37,6 @@ Personality::response_pool Personality::_name_response
     "<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3"
     };
 
-void Personality::respond_name() {
-    _trigger_count++;
-}
-
 void Personality::respond_newline() {
     if(Options::Instance()->get(Project::PERSONALITY) && _trigger_count > 0 && _seed.size()) {
         std::hash<std::string> hash;

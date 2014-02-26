@@ -17,8 +17,7 @@
 
 class Personality {
 public:
-    static void respond_name();
-    static void respond_newline();
+    static void respond();
     static void set_seed(const std::string& seed);
     typedef const std::vector<std::string> response_pool;
 private:

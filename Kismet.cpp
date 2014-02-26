@@ -15,7 +15,7 @@ int Kismet::parse() {
     while(!status && !_prompt.eof()) {
         line = _prompt.readline();
         Personality::set_seed(line);
-        Personality::respond_newline();
+        Personality::respond();
         if(line.empty()) {
             if(_lastline.size())
                 status = parseline(_lastline);
