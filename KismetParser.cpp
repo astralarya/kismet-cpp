@@ -10,6 +10,10 @@ bool KismetParser::parse(const std::string& line) {
     roll_parser<std::string::const_iterator> parser;
     RollNode::ptr node;
     bool r = parse(iter, end, parser, node);
+    if(iter != end) {
+        std::cout << "Syntax error" << std::endl;
+        return false;
+    }
     Roll roll_ob(node);
     
     roll_ob.roll();
