@@ -37,7 +37,7 @@ Personality::response_pool Personality::_name_response
     "<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3","<3"
     };
 
-void Personality::respond_newline() {
+void Personality::respond() {
     if(Options::Instance()->get(Project::PERSONALITY) && _trigger_count > 0 && _seed.size()) {
         std::hash<std::string> hash;
         unsigned seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
