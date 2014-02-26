@@ -52,6 +52,12 @@ public:
         die(die),
         high(0),
         low(0) {}
+
+        roll_type(unsigned times, unsigned die, unsigned high, unsigned low):
+        times(times),
+        die(die),
+        high(high),
+        low(low) {}
     };
 
     static int roll(const unsigned int die, const unsigned int times);
