@@ -17,9 +17,12 @@ namespace KismetParser {
 
     template <typename Iterator>
     struct roll_parser : boost::spirit::qi::grammar<Iterator, RollNode::ptr()> {
-        roll_parser() : roll_parser::base_type(start), start(),
-        leafnode(),
-        dieroll(),atom(),
+        roll_parser() : roll_parser::base_type(start),
+        start(),
+        leafnode(), factor(), expr(), modpair(),
+        modlist(),
+        modifier(), modfactor(),
+        dieroll(), atom(),
         times(), die(), drop_high(), drop_low() {
             using boost::spirit::qi::eps;
             using boost::spirit::qi::lit;
@@ -56,14 +59,43 @@ namespace KismetParser {
             leafnode = dieroll[_val = construct<RollNode::ptr>(new_<DiceRollNode>(_1))]
                     | atom[_val = construct<RollNode::ptr>(new_<ConstRollNode>(_1))];
 
-            start %= leafnode;
+            factor %= leafnode
+                    | '(' >> expr >> ')';
+
+            modifier = modfactor [_val = _1]
+                     | ('+' >> expr)[_val = construct<MultiRollNode::modifier>(_1,MathRollNode::ADD)]
+                     | ('-' >> expr)[_val = construct<MultiRollNode::modifier>(_1,MathRollNode::SUB)];
+
+            modfactor = ('*' >> factor)[_val = construct<MultiRollNode::modifier>(_1,MathRollNode::MULT)]
+                      | ('/' >> factor)[_val = construct<MultiRollNode::modifier>(_1,MathRollNode::DIV)];
+
+            modlist = modifier[boost::phoenix::push_back(_val,_1)] % ',';
+
+            modpair = (expr >> modlist)[_val = construct<RollNode::ptr>(new_<MultiRollNode>(std::move(_1),std::move(_2)))]
+                    | modlist[_val = construct<RollNode::ptr>(new_<MultiRollNode>(
+                            construct<RollNode::ptr>(new_<DiceRollNode>()),_1))];
+
+            expr %= factor
+                  | modpair;
+
+            start %= expr;
         }
 
         ~roll_parser(){}
 
         boost::spirit::qi::rule<Iterator, RollNode::ptr()>
             start,
-            leafnode;
+            leafnode,
+            factor,
+            expr,
+            modpair;
+
+        boost::spirit::qi::rule<Iterator, MultiRollNode::mod_list()>
+            modlist;
+
+        boost::spirit::qi::rule<Iterator, MultiRollNode::modifier()>
+            modifier,
+            modfactor;
 
         boost::spirit::qi::rule<Iterator, Dice::roll_type()>
             dieroll;

@@ -230,6 +230,8 @@ public:
     typedef std::shared_ptr<MultiRollNode> ptr;
     struct modifier {
         modifier():argument(),op(){}
+        modifier(RollNode::ptr argument_in, MathRollNode::mode op_in):
+        argument(argument_in),op(op_in){}
 
         RollNode::ptr argument;
         MathRollNode::mode op;
