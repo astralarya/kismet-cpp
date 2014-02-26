@@ -1,5 +1,4 @@
 #include "Kismet.h"
-#include "Prompt.h"
 
 int Kismet::parse(std::istream& istream) {
     std::string line;
@@ -15,6 +14,8 @@ int Kismet::parse() {
     int status = 0;
     while(!status && !_prompt.eof()) {
         line = _prompt.readline();
+        Personality::set_seed(line);
+        Personality::respond_newline();
         if(line.empty()) {
             if(_lastline.size())
                 status = parseline(_lastline);
