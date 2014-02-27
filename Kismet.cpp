@@ -14,8 +14,6 @@ int Kismet::parse() {
     int status = 0;
     while(!status && !_prompt.eof()) {
         line = _prompt.readline();
-        Personality::set_seed(line);
-        Personality::respond();
         if(line.empty()) {
             if(_lastline.size())
                 status = parseline(_lastline);
@@ -30,6 +28,8 @@ int Kismet::parse() {
 }
 
 int Kismet::parseline(const std::string& line) {
+    Personality::set_seed(line);
+    Personality::respond();
     KismetParser::parse(line);
     return 0;
 }
